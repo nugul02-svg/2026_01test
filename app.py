@@ -71,7 +71,7 @@ SETS = [
         "q1": {
             "rowA": {"t": "'당신의 발소리'를 '천장을 흔드는 것'이라고 말하여, 내게는 작은 소리가 아래층에서는 집을 흔드는 큰 소리가 된다는 것을 보여 줌.", "i": "위층의 발자국을 아래층 학생의 머리 위 그림자로 만들어, 소리가 아래층 사람을 누르는 무게가 된다는 것을 보여 줌."},
             "items": [
-                {"id": "q1-1", "label": "(나) 문구 ( ㉠ )", "short": False, "key": {"ex": "'슬리퍼 한 켤레면 됩니다'라고 하여, 층간소음이라는 큰 문제가 슬리퍼를 신는 작은 실천으로 쉽게 해결될 수 있음을 보여 줌. / 쉬운 해결책을 직접적으로 제시하여, 이웃을 위해 즉시 슬리퍼를 신도록 실천을 유도함."}},
+                {"id": "q1-1", "label": "(나) 문구 ( ㉠ )", "short": False, "key": {"ex": "'슬리퍼 한 켤레면 됩니다'라고 하여, 층간소음이라는 큰 문제가 슬리퍼 신는 작은 실천으로 쉽게 해결될 수 있음을 보여 줌. / 쉬운 해결책을 직접적으로 제시하여, 이웃을 위해 즉시 슬리퍼를 신도록 실천을 유도함."}},
                 {"id": "q1-2", "label": "(나) 이미지 ( ㉡ )", "short": False, "key": {"ex": "푹신해 보이는 슬리퍼와 그 안으로 들어가는 발을 크게 배치하여, 층간소음을 줄이기 위한 구체적이고 즉각적인 행동을 보여 줌. / 따뜻하고 푹신한 이미지를 통해 층간소음 방지가 이웃을 향한 배려임을 느끼게 함."}}
             ]
         },
@@ -197,10 +197,10 @@ def get_local_feedback(answer, label, set_id):
         
     tip_header = "\n\n**💡 통과를 위한 수정 팁**\n문장의 끝부분만 조건에 맞게 살짝 다듬어 주시면 바로 정답(✅) 처리됩니다.\n"
     
-    # 1. ㉠, ㉡ 단순 빈칸 추리 문항 검증 (내용 단서 기반)
-    if "㉠" in label or "㉡" in label:
+    # 1. 3번 비판적 읽기 - ㉠, ㉡ 단순 빈칸 추리 문항 (정확히 라벨이 "㉠" 또는 "㉡"인 경우만)
+    if label == "㉠" or label == "㉡":
         if set_id == "set1":
-            if "㉠" in label:
+            if label == "㉠":
                 if any(w in ans for w in ["관리", "쪼개", "통제", "효율", "계획", "바쁘", "빈틈", "아껴", "가치"]): return {"status": "success", "msg": "주어진 자료를 바탕으로 관점을 아주 정확하게 추리했습니다!"}
                 else: return {"status": "error", "msg": "💡 단서 분석이 아쉽습니다. 광고 속 '뛰어가는 학생'과 '1분도 놓치지 않는'이라는 문구를 다시 확인해 보세요. 시간을 여유롭게 둔다는 의미일까요, 아니면 철저하게 관리해야 한다는 의미일까요?"}
             else:
@@ -208,7 +208,7 @@ def get_local_feedback(answer, label, set_id):
                 else: return {"status": "error", "msg": "💡 단서 분석이 아쉽습니다. '쉬는 시간 15분', '벤치에 앉아 쉬는' 등의 힌트를 바탕으로, 학생이 시간을 어떻게 쓰기를 바라는지 추리해 보세요."}
                 
         elif set_id == "set2":
-            if "㉠" in label:
+            if label == "㉠":
                 if any(w in ans for w in ["시선", "과시", "자랑", "뽐내", "부러움", "타인", "남들", "도구", "자신감"]): return {"status": "success", "msg": "주어진 자료를 바탕으로 관점을 아주 정확하게 추리했습니다!"}
                 else: return {"status": "error", "msg": "💡 단서 분석이 아쉽습니다. '신는 순간, 시선이 달라집니다'라는 문구와 남들이 부러워하며 올려다보는 이미지를 통해, 운동화를 어떤 용도로 보는지 추리해 보세요."}
             else:
@@ -216,14 +216,14 @@ def get_local_feedback(answer, label, set_id):
                 else: return {"status": "error", "msg": "💡 단서 분석이 아쉽습니다. 운동장에서 공을 쫓아 뛰는 이미지와 '발이 가벼워집니다'라는 문구를 바탕으로, 운동화의 진짜 역할이 무엇인지 추리해 보세요."}
                 
         elif set_id == "set3":
-            if "㉠" in label:
+            if label == "㉠":
                 if any(w in ans for w in ["단절", "혼자", "차단", "개인", "도피", "나만", "끄고", "수단", "거리"]): return {"status": "success", "msg": "주어진 자료를 바탕으로 관점을 아주 정확하게 추리했습니다!"}
                 else: return {"status": "error", "msg": "💡 단서 분석이 아쉽습니다. '세상을 끄고, 나만 남기다'라는 문구와 주변을 흐리게 처리한 이미지를 바탕으로, 이어폰이 타인과 소통하는 것인지 아니면 차단하는 것인지 추리해 보세요."}
             else:
                 if any(w in ans for w in ["연결", "공유", "소통", "함께", "같이", "나눔", "타인", "매개체"]): return {"status": "success", "msg": "주어진 자료를 바탕으로 관점을 아주 정확하게 추리했습니다!"}
                 else: return {"status": "error", "msg": "💡 단서 분석이 아쉽습니다. 두 학생이 '같은 노래'를 들으며 함께 웃는 모습을 바탕으로, 이어폰이 타인과의 관계에서 어떤 역할을 하는지 관점을 추리해 보세요."}
 
-    # 2. 문구 / 이미지 효과 검증 (Q1)
+    # 2. 1번 재현 방식 (문구 / 이미지 효과 검증)
     if "문구" in label or "이미지" in label:
         if any(w in ans for w in ["이미지", "그림", "사진", "모습"]) and "문구" in label:
             return {"status": "error", "msg": "💡 문구(글)에 대한 분석을 쓰는 칸인데, 이미지나 그림에 대한 설명이 섞여 있는 것 같아요. 다시 확인해 보세요!"}
@@ -236,7 +236,7 @@ def get_local_feedback(answer, label, set_id):
             return {"status": "error", "msg": "조건 누락: 광고의 문구나 이미지만 옮겨 쓰지 말고, 그것이 주는 '효과(의미나 수용자에게 미치는 영향)'를 반드시 서술해 보세요." + tip}
         return {"status": "success", "msg": "문맥과 조건에 맞게 잘 작성했습니다! 훌륭합니다."}
         
-    # 3. 관점 검증 (Q2)
+    # 3. 2번 관점 검증 (Q2)
     if "관점" in label:
         reason_words = ["때문", "이유", "까닭", "왜냐하면", "보아", "보면", "라서", "므로", "통해", "여서", "어서"]
         view_words = ["본다", "보여", "생각", "여긴", "간주", "의미", "관점", "바라", "로본다", "으로본다", "여긴다"]
@@ -251,7 +251,7 @@ def get_local_feedback(answer, label, set_id):
         elif not has_view:
             return {"status": "error", "msg": "💡 조건 누락: 근거는 좋은데, 그래서 대상을 무엇으로 '보는지(~로 본다, ~라고 생각한다 등)'에 대한 결론이 명확하지 않습니다."}
 
-        # 2단계: 내용 타당성 검증 (Q2)
+        # 내용 타당성 검증
         if set_id == "set1":
             if not any(w in ans for w in ["위험", "위협", "생명", "사고", "문제", "인식", "차이", "치명", "아찔", "다르"]):
                 return {"status": "error", "msg": "💡 내용 보완 필요: 문장 형식은 맞지만 내용이 타당하지 않습니다. 스마트폰 보행이 얼마나 '위험'한지, 혹은 운전자와의 '인식 차이'가 어떤지 광고 맥락에 맞게 적어주세요."}
@@ -264,8 +264,8 @@ def get_local_feedback(answer, label, set_id):
 
         return {"status": "success", "msg": "문장 틀과 내용의 타당성까지 완벽하게 작성했습니다! 훌륭합니다."}
 
-    # 4. 의도 검증 (Q2)
-    if "의도" in label and "원본 광고" not in label:
+    # 4. 2번 의도 검증 (Q2)
+    if label == "(가)의 의도" or label == "(나)의 의도":
         intent_words = ["하려", "하기", "하게", "유도", "목적", "바란다", "원한", "만들려", "의도", "바람", "이끌", "행동"]
         if not any(w in ans for w in intent_words):
             return {"status": "error", "msg": "💡 조건 누락: 제작자가 수용자에게 어떤 행동이나 생각을 '하게 하려는지(~하게 하려 한다, ~가 목적이다 등)'가 명확히 드러나게 써보세요."}
@@ -282,9 +282,9 @@ def get_local_feedback(answer, label, set_id):
 
         return {"status": "success", "msg": "제작자의 의도와 핵심 내용을 문맥에 맞게 훌륭하게 파악했습니다!"}
 
-    # 5. 비판적 읽기 (원본 광고 의도 - Q3 전용, 재현 근거 반영 시 융통성 부여)
+    # 5. 3번 비판적 읽기 (원본 광고 의도 - Q3 전용, 재현 근거 반영 시 융통성 부여)
     if "원본 광고의 제작자 의도" in label:
-        reason_words = ["때문", "이유", "까닭", "왜냐하면", "보아", "보면", "라서", "므로", "통해", "여서", "어서"]
+        reason_words = ["때문", "이유", "까닭", "왜냐하면", "보아", "보면", "라서", "므로", "통해", "여서", "어서", "바탕으로"]
         intent_words = ["하려", "하기", "하게", "유도", "목적", "바란다", "원한", "만들려", "의도", "바람", "이끌", "행동", "만든다", "사용"]
         
         has_reason = any(w in ans for w in reason_words)
@@ -300,7 +300,7 @@ def get_local_feedback(answer, label, set_id):
             tip = tip_header + "> \"광고를 본 사람이 ... **하게 하려 한다.** 왜냐하면...\""
             return {"status": "error", "msg": "조건 누락: 근거는 좋은데, 그래서 결국 수용자가 어떤 생각이나 행동을 '하게 하려는지(~하게 하려 한다 등)'가 명확하지 않습니다." + tip}
         
-        # 구매 여부에 한정하지 않고, 재현 요소(이미지/문구)와 연결되었는지 검증!
+        # 재현 요소(이미지/문구)와 연결되었는지 검증
         rep_words = ["문구", "이미지", "그림", "사진", "모델", "표정", "글귀", "모습", "분위기", "단어", "글씨"]
         has_rep = any(w in ans for w in rep_words)
 
@@ -436,7 +436,6 @@ for i, tab in enumerate(tabs[:3]):
         q_choice = st.radio(f"문항 선택 ({s['id']})", ["✏️ 1. 재현 방식", "✏️ 2. 관점과 의도", "✏️ 3. 비판적 읽기"], horizontal=True, label_visibility="collapsed")
         
         if q_choice == "✏️ 1. 재현 방식":
-            # 1, 2번 탭일 때만 상단 광고 2개 표시
             c1, c2 = st.columns(2)
             c1.markdown(get_base64_image(s["adA"], "(가)"), unsafe_allow_html=True)
             c2.markdown(get_base64_image(s["adB"], "(나)"), unsafe_allow_html=True)
@@ -504,7 +503,6 @@ for i, tab in enumerate(tabs[:3]):
                         st.info(it['key']['ex'])
             
         elif q_choice == "✏️ 2. 관점과 의도":
-            # 1, 2번 탭일 때만 상단 광고 2개 표시
             c1, c2 = st.columns(2)
             c1.markdown(get_base64_image(s["adA"], "(가)"), unsafe_allow_html=True)
             c2.markdown(get_base64_image(s["adB"], "(나)"), unsafe_allow_html=True)
@@ -556,7 +554,6 @@ for i, tab in enumerate(tabs[:3]):
                         st.info(it['key']['ex'])
             
         else:
-            # 3번 탭에서는 상단 1, 2번 자료(가, 나 광고 이미지)를 숨기고 3번 자료만 표시
             q = s["q3"]
             k_q = f"{s['id']}-q3"
             st.markdown("<div style='font-size:1.3em; font-weight:bold; margin-bottom:10px;'>3. 비판적 읽기</div>", unsafe_allow_html=True)
