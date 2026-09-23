@@ -1,3 +1,14 @@
+# -*- coding: utf-8 -*-
+"""서논술형 답안 연습 — 광고·홍보물의 재현과 관점 (Streamlit)"""
+
+import json
+import re
+import datetime as dt
+from pathlib import Path
+
+import streamlit as st
+
+# 데이터 세트 구성 (1~3회차 모의 문항)
 SETS = [
     {
         "id": "set1",
@@ -273,3 +284,102 @@ SETS = [
         }
     }
 ]
+
+HERE = Path(__file__).parent
+IMG_DIR = HERE / "images"
+
+st.set_page_config(page_title="서논술형 답안 연습", page_icon="✍️", layout="centered")
+
+# ---------------------------------------------------------------- 페이지 목록
+PAGES = []
+for si, s in enumerate(SETS, 1):
+    for qi, qk in enumerate(["q1", "q2", "q3"], 1):
+        PAGES.append({"id": f"{s['id']}-{qk}", "set": s, "qkey": qk, "tab": f"{si}-{qi}", "name": f"{si}번 세트 – 서·논술형 {qi}"})
+PAGES.append({"id": "result", "tab": "결과", "name": "결과 정리"})
+PAGE_IDS = [p["id"] for p in PAGES]
+
+ss = st.session_state
+ss.setdefault("page", PAGE_IDS[0])
+ss.setdefault("answers", {})
+ss.setdefault("verdicts", {})
+ss.setdefault("graded", set())
+ss.setdefault("student", "")
+
+def akey(set_id, item_id):
+    return f"{set_id}-{item_id}"
+
+# ---------------------------------------------------------------- 채점 로직 (루브릭 반영)
+GRADE_RULES = (
+    "[채점 기준 및 판정 원칙]\n"
+    "1. 서·논술형 1 (문구/이미지 재현과 효과):\n"
+    " - 정: 재현 요소(핵심 문구/이미지)가 언급되고, 그 요소로 인해 나타나는 효과가 타당하게 연결됨.\n"
+    " - 오: 재현 요소만 언급되고 효과가 없거나, 둘 다 없는 경우.\n\n"
+    "2. 서·논술형 2 (관점과 의도):\n"
+    " - 정(관점): 관점 문장의 기술이 타당하며, 그렇게 생각한 근거를 재현(단순 결과 포함)에서 짚어 언급함.\n"
+    " - 정(의도): 광고가 수용자에게 하게 하려는 행동을 광고 내용에 맞게 제시함.\n"
+    " - 오: 관점/의도가 어긋나거나, 관점의 근거를 전혀 밝히지 않은 경우.\n\n"
+    "3. 서·논술형 3 (비판적 사고와 의도):\n"
+    " - 정(㉠/㉡): 수정 전/후 광고가 드러내는 성질·가치를 담고 있으며 서로 대비됨.\n"
+    " - 정(의도): 수용자에게 하게 하려는 행동을 기술하고, 재현된 문구·이미지를 근거로 타당하게 연결함.\n"
+    " - 오: ㉠/㉡에 사물 이름이나 막연한 표현을 쓰거나, 의도에 근거가 없는 경우.\n\n"
+    "[공통 규칙]\n"
+    "점수(예: 3점, 1점)는 절대 언급하지 마세요. '오'일 때는 정답을 그대로 주지 말고 무엇이 빠졌는지 한 문장으로 친절하게 피드백합니다. 답이 무의미하면 '답을 써 주세요.'라고 합니다."
+)
+
+def build_prompt(s, qkey, answers):
+    q = s[qkey]
+    if qkey == "q1":
+        qdesc = (
+            "[문항] 서·논술형 1. (나) 광고의 문구(㉠)와 이미지(㉡)에 대해 그로 인한 효과를 쓴다.\n"
+            f"참고(가): 문구: {q['rowA']['t']} / 이미지: {q['rowA']['i']}"
+        )
+        ad = s["adText"]["A"] + "\n" + s["adText"]["B"]
+    elif qkey == "q2":
+        qdesc = (
+            "[문항] 서·논술형 2. 관점과 의도 서술.\n"
+            "틀: 관점은 '( )을/를 ( )로/으로 본다. 이유는 ( ) 때문이다.', 의도는 '사람이 ( )하게 하려 한다.'"
+        )
+        ad = s["adText"]["A"] + "\n" + s["adText"]["B"]
+    else:
+        qdesc = (
+            f"[문항] 서·논술형 3. ㉠·㉡에는 광고 속 {q['obj']}을/를 무엇으로 보는지 쓴다.\n"
+            "(2)는 수정 전 의도를 '사람이 ( )하게 하려 한다. 이유는 ( ) 때문이다.'에 맞춰 쓴다."
+        )
+        ad = s["adText"]["C"]
+        
+    keys = "\n".join(
+        f"- {it['id']} ({it['label']})\n  예시: {it['key']['ex']}\n  인정: {' / '.join(it['key']['ok'])}\n  불인정: {' / '.join(it['key']['no'])}"
+        for it in q["items"]
+    )
+    ans = "\n".join(f"- {it['id']}: {json.dumps(answers[it['id']], ensure_ascii=False)}" for it in q["items"])
+    
+    return (
+        f"당신은 중학교 국어 교사입니다. 아래 기준을 읽고 '정' 또는 '오'로 판정하세요.\n\n"
+        f"[광고 설명]\n{ad}\n\n{qdesc}\n\n[인정답안 기준]\n{keys}\n\n{GRADE_RULES}\n\n[학생 답안]\n{ans}\n\n"
+        "반드시 다음 JSON 배열만 출력하세요: [{\"id\":\"q1a\",\"verdict\":\"정\",\"feedback\":\"...\"}]"
+    )
+
+def secret(name, default=None):
+    try:
+        return st.secrets.get(name, default)
+    except Exception:
+        return default
+
+@st.cache_resource
+def get_client():
+    import anthropic
+    key = secret("ANTHROPIC_API_KEY", "")
+    if not key:
+        return None
+    return anthropic.Anthropic(api_key=key)
+
+def call_grader(prompt):
+    client = get_client()
+    if client is None:
+        raise RuntimeError("ANTHROPIC_API_KEY 설정이 필요합니다. Streamlit Secrets를 확인하세요.")
+    model = secret("MODEL", "claude-sonnet-4-6")
+    msg = client.messages.create(model=model, max_tokens=1200, messages=[{"role": "user", "content": prompt}])
+    text = "".join(b.text for b in msg.content if getattr(b, "type", "") == "text")
+    
+    # 마크다운 백틱 파싱 에러 방지
+    text = text.replace("```json", "").replace("
