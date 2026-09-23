@@ -108,12 +108,10 @@ st.markdown("""
     display: none !important;
     visibility: hidden !important;
 }
-
 .stTabs [data-baseweb="tab-list"] button [data-testid="stMarkdownContainer"] p {
     font-size: 1.3rem !important;
     font-weight: 800 !important;
 }
-
 button[data-baseweb="tab"][aria-selected="true"] {
     color: #ff4b4b !important;
     border-bottom: 2px solid #ff4b4b !important;
@@ -121,7 +119,6 @@ button[data-baseweb="tab"][aria-selected="true"] {
 button[data-baseweb="tab"][aria-selected="true"] p {
     color: #ff4b4b !important;
 }
-
 div[data-testid="stRadio"] > div {
     display: flex !important;
     flex-direction: row !important;
@@ -151,7 +148,6 @@ div[data-testid="stRadio"] label[data-checked="true"] p {
     color: #ffffff !important;
     font-weight: bold !important;
 }
-
 div[data-testid="InputInstructions"] {
     display: none !important;
 }
@@ -186,7 +182,6 @@ with st.sidebar:
             <span style="font-weight: bold; color: #2b6cb0;">[TIP]</span> "( )을/를 ( )으로/로 본다"의 문장 형태로 정리할 수 있음.
         </div>
         """, unsafe_allow_html=True)
-        
         st.markdown("• **의도**: 제작자가 수용자에게 하게 하려는 것.")
         st.markdown("""
         <div style="background-color: #e8f4f8; padding: 10px; border-left: 4px solid #2b6cb0; border-radius: 4px;">
@@ -200,6 +195,8 @@ def get_local_feedback(answer, label, set_id):
     if len(ans) < 2:
         return {"status": "error", "msg": "답안이 너무 짧습니다. 의미가 잘 드러나게 문장을 완성해 보세요."}
         
+    tip_header = "\n\n**💡 통과를 위한 수정 팁**\n문장의 끝부분만 조건에 맞게 살짝 다듬어 주시면 바로 정답(✅) 처리됩니다.\n"
+    
     # 1. ㉠, ㉡ 단순 빈칸 추리 문항 검증 (내용 단서 기반)
     if "㉠" in label or "㉡" in label:
         if set_id == "set1":
@@ -235,7 +232,8 @@ def get_local_feedback(answer, label, set_id):
             
         effect_words = ["보여", "나타", "하게", "주어", "알게", "느끼", "전달", "효과", "위험", "경각심", "촉구", "깨닫", "생각", "유도", "이해", "알려", "강조"]
         if not any(w in ans for w in effect_words):
-            return {"status": "error", "msg": "💡 조건 누락: 광고의 문구나 이미지만 옮겨 쓰지 말고, 그것이 주는 '효과(의미나 수용자에게 미치는 영향)'를 서술해 보세요. (예: ~라는 것을 깨닫게 함, ~효과를 줌 등)"}
+            tip = tip_header + "> \"...(이)라는 문구/이미지를 넣어, **~라는 것을 보여 줌(알게 함/느끼게 함).**\""
+            return {"status": "error", "msg": "조건 누락: 광고의 문구나 이미지만 옮겨 쓰지 말고, 그것이 주는 '효과(의미나 수용자에게 미치는 영향)'를 반드시 서술해 보세요." + tip}
         return {"status": "success", "msg": "문맥과 조건에 맞게 잘 작성했습니다! 훌륭합니다."}
         
     # 3. 관점 검증 (Q2)
@@ -253,7 +251,7 @@ def get_local_feedback(answer, label, set_id):
         elif not has_view:
             return {"status": "error", "msg": "💡 조건 누락: 근거는 좋은데, 그래서 대상을 무엇으로 '보는지(~로 본다, ~라고 생각한다 등)'에 대한 결론이 명확하지 않습니다."}
 
-        # 2단계: 내용 타당성 검증
+        # 2단계: 내용 타당성 검증 (Q2)
         if set_id == "set1":
             if not any(w in ans for w in ["위험", "위협", "생명", "사고", "문제", "인식", "차이", "치명", "아찔", "다르"]):
                 return {"status": "error", "msg": "💡 내용 보완 필요: 문장 형식은 맞지만 내용이 타당하지 않습니다. 스마트폰 보행이 얼마나 '위험'한지, 혹은 운전자와의 '인식 차이'가 어떤지 광고 맥락에 맞게 적어주세요."}
@@ -266,29 +264,55 @@ def get_local_feedback(answer, label, set_id):
 
         return {"status": "success", "msg": "문장 틀과 내용의 타당성까지 완벽하게 작성했습니다! 훌륭합니다."}
 
-    # 4. 의도 검증 (Q2, Q3)
-    if "의도" in label:
+    # 4. 의도 검증 (Q2)
+    if "의도" in label and "원본 광고" not in label:
         intent_words = ["하려", "하기", "하게", "유도", "목적", "바란다", "원한", "만들려", "의도", "바람", "이끌", "행동"]
         if not any(w in ans for w in intent_words):
             return {"status": "error", "msg": "💡 조건 누락: 제작자가 수용자에게 어떤 행동이나 생각을 '하게 하려는지(~하게 하려 한다, ~가 목적이다 등)'가 명확히 드러나게 써보세요."}
 
-        if "원본 광고" in label:
-            reason_words = ["때문", "이유", "까닭", "왜냐하면", "보아", "보면", "라서", "므로", "통해", "여서", "어서"]
-            if not any(w in ans for w in reason_words):
-                return {"status": "error", "msg": "💡 조건 누락: 의도는 적었으나, 광고의 어떤 부분을 보고 그렇게 생각했는지 '근거(~때문이다 등)'가 빠져 있습니다."}
-
-        # 2단계: 내용 타당성 검증
         if set_id == "set1":
-            if not any(w in ans for w in ["보지않", "하지않", "주의", "조심", "경각심", "멈추", "스마트폰", "관리", "철저", "계획", "사게", "구매"]):
-                return {"status": "error", "msg": "💡 내용 보완 필요: 문장 형식은 맞지만 핵심 내용이 아쉽습니다. 사람들이 스마트폰을 어떻게 하기를(혹은 시계를 사서 어떻게 하기를) 바라는지 맥락에 맞게 적어주세요."}
+            if not any(w in ans for w in ["보지않", "하지않", "주의", "조심", "경각심", "멈추", "스마트폰", "위험"]):
+                return {"status": "error", "msg": "💡 내용 보완 필요: 문장 형식은 맞지만 핵심 내용이 아쉽습니다. 사람들이 스마트폰 보행을 어떻게 하기를 바라는지 맥락에 맞게 적어주세요."}
         elif set_id == "set2":
-            if not any(w in ans for w in ["남기지", "다먹", "줄이", "버리지", "감사", "과시", "시선", "자랑", "사게", "구매", "운동화"]):
-                return {"status": "error", "msg": "💡 내용 보완 필요: 문장 형식은 맞지만 핵심 내용이 아쉽습니다. 음식을 어떻게 하기를(혹은 신발을 사서 어떻게 하기를) 바라는지 맥락에 맞게 적어주세요."}
+            if not any(w in ans for w in ["남기지", "다먹", "줄이", "버리지", "감사", "노고", "음식", "잔반"]):
+                return {"status": "error", "msg": "💡 내용 보완 필요: 문장 형식은 맞지만 핵심 내용이 아쉽습니다. 음식을 어떻게 하기를 바라는지 맥락에 맞게 적어주세요."}
         elif set_id == "set3":
-            if not any(w in ans for w in ["조용", "배려", "걷게", "뛰지", "슬리퍼", "신게", "실천", "단절", "혼자", "차단", "도피", "사게", "구매", "이어폰"]):
-                return {"status": "error", "msg": "💡 내용 보완 필요: 문장 형식은 맞지만 핵심 내용이 아쉽습니다. 이웃을 위해 어떻게 하기를(혹은 이어폰을 사서 어떻게 하기를) 바라는지 맥락에 맞게 적어주세요."}
+            if not any(w in ans for w in ["조용", "배려", "걷게", "뛰지", "슬리퍼", "신게", "실천", "층간소음"]):
+                return {"status": "error", "msg": "💡 내용 보완 필요: 문장 형식은 맞지만 핵심 내용이 아쉽습니다. 이웃을 위해 어떻게 하기를 바라는지 맥락에 맞게 적어주세요."}
 
         return {"status": "success", "msg": "제작자의 의도와 핵심 내용을 문맥에 맞게 훌륭하게 파악했습니다!"}
+
+    # 5. 비판적 읽기 (원본 광고 의도 - Q3 전용, 재현 근거 반영 시 융통성 부여)
+    if "원본 광고의 제작자 의도" in label:
+        reason_words = ["때문", "이유", "까닭", "왜냐하면", "보아", "보면", "라서", "므로", "통해", "여서", "어서"]
+        intent_words = ["하려", "하기", "하게", "유도", "목적", "바란다", "원한", "만들려", "의도", "바람", "이끌", "행동", "만든다", "사용"]
+        
+        has_reason = any(w in ans for w in reason_words)
+        has_intent = any(w in ans for w in intent_words)
+        
+        if not has_reason and not has_intent:
+            tip = tip_header + "> \"광고를 본 사람이 ... **하게 하려 한다. 왜냐하면** ... 기 **때문이다.**\""
+            return {"status": "error", "msg": "조건 누락: 제작자의 의도(~하게 하려 한다)와 그 근거(~때문이다)를 모두 포함해서 써보세요." + tip}
+        elif not has_reason:
+            tip = tip_header + "> \"... **하게 하려 한다. 왜냐하면** ... 기 **때문이다.**\""
+            return {"status": "error", "msg": "조건 누락: 의도는 잘 찾았는데, 광고의 어떤 부분을 보고 그렇게 생각했는지 '근거(~때문이다 등)'가 빠져 있습니다." + tip}
+        elif not has_intent:
+            tip = tip_header + "> \"광고를 본 사람이 ... **하게 하려 한다.** 왜냐하면...\""
+            return {"status": "error", "msg": "조건 누락: 근거는 좋은데, 그래서 결국 수용자가 어떤 생각이나 행동을 '하게 하려는지(~하게 하려 한다 등)'가 명확하지 않습니다." + tip}
+        
+        # 구매 여부에 한정하지 않고, 재현 요소(이미지/문구)와 연결되었는지 검증!
+        rep_words = ["문구", "이미지", "그림", "사진", "모델", "표정", "글귀", "모습", "분위기", "단어", "글씨"]
+        has_rep = any(w in ans for w in rep_words)
+
+        context_ok = False
+        if set_id == "set1" and any(w in ans for w in ["뛰어", "1분", "시계", "스마트워치", "알림", "학생"]): context_ok = True
+        if set_id == "set2" and any(w in ans for w in ["내려다", "시선", "달라", "부러", "운동화", "신발", "학생"]): context_ok = True
+        if set_id == "set3" and any(w in ans for w in ["흐리게", "눈을", "세상", "끄고", "나만", "평온", "이어폰", "학생", "표정"]): context_ok = True
+
+        if not (has_rep or context_ok):
+            return {"status": "error", "msg": "💡 내용 보완 필요: 의도는 잘 파악했습니다! 다만, 광고의 어떤 '재현 방식(이미지 속 모델의 표정, 특정 문구 등)'을 보고 그렇게 생각했는지 구체적인 근거를 함께 적어주세요."}
+
+        return {"status": "success", "msg": "제작자의 의도와 근거(재현 방식)를 논리적으로 아주 잘 연결했습니다! 훌륭합니다."}
             
     return {"status": "success", "msg": "조건에 맞게 잘 작성했습니다!"}
 
@@ -409,14 +433,15 @@ for i, tab in enumerate(tabs[:3]):
     with tab:
         s = SETS[i]
         
-        c1, c2 = st.columns(2)
-        c1.markdown(get_base64_image(s["adA"], "(가)"), unsafe_allow_html=True)
-        c2.markdown(get_base64_image(s["adB"], "(나)"), unsafe_allow_html=True)
-        st.write("")
-        
         q_choice = st.radio(f"문항 선택 ({s['id']})", ["✏️ 1. 재현 방식", "✏️ 2. 관점과 의도", "✏️ 3. 비판적 읽기"], horizontal=True, label_visibility="collapsed")
         
         if q_choice == "✏️ 1. 재현 방식":
+            # 1, 2번 탭일 때만 상단 광고 2개 표시
+            c1, c2 = st.columns(2)
+            c1.markdown(get_base64_image(s["adA"], "(가)"), unsafe_allow_html=True)
+            c2.markdown(get_base64_image(s["adB"], "(나)"), unsafe_allow_html=True)
+            st.write("")
+            
             q = s["q1"]
             k_q = f"{s['id']}-q1"
             st.markdown("<div style='font-size:1.3em; font-weight:bold; margin-bottom:10px;'>1. 재현 방식</div>", unsafe_allow_html=True)
@@ -479,6 +504,12 @@ for i, tab in enumerate(tabs[:3]):
                         st.info(it['key']['ex'])
             
         elif q_choice == "✏️ 2. 관점과 의도":
+            # 1, 2번 탭일 때만 상단 광고 2개 표시
+            c1, c2 = st.columns(2)
+            c1.markdown(get_base64_image(s["adA"], "(가)"), unsafe_allow_html=True)
+            c2.markdown(get_base64_image(s["adB"], "(나)"), unsafe_allow_html=True)
+            st.write("")
+            
             q = s["q2"]
             k_q = f"{s['id']}-q2"
             st.markdown("<div style='font-size:1.3em; font-weight:bold; margin-bottom:10px;'>2. 관점과 의도</div>", unsafe_allow_html=True)
@@ -525,6 +556,7 @@ for i, tab in enumerate(tabs[:3]):
                         st.info(it['key']['ex'])
             
         else:
+            # 3번 탭에서는 상단 1, 2번 자료(가, 나 광고 이미지)를 숨기고 3번 자료만 표시
             q = s["q3"]
             k_q = f"{s['id']}-q3"
             st.markdown("<div style='font-size:1.3em; font-weight:bold; margin-bottom:10px;'>3. 비판적 읽기</div>", unsafe_allow_html=True)
