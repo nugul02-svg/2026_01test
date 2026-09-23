@@ -8,11 +8,6 @@ SETS = [
     {
         "id": "set1",
         "adA": "set1_a.png", "adB": "set1_b.png", "adC": "set1_c.png",
-        "adText": {
-            "A": "(가) 보행 중 스마트폰 사용 위험 경고 광고",
-            "B": "(나) 보행 중 스마트폰 사용 위험 경고 광고",
-            "C": "스마트워치 상업 광고"
-        },
         "q1": {
             "rowA": {"t": "'고개를 드는 것'을 '5초가 보이는 것'과 짝지어 위험을 알아챌 시간이 생긴다는 것을 보여 줌.", "i": "신호등을 넣어 학생이 보지 못하는 남은 시간을 보여 줌."},
             "items": [
@@ -39,11 +34,6 @@ SETS = [
     {
         "id": "set2",
         "adA": "set2_a.png", "adB": "set2_b.png", "adC": "set2_c.png",
-        "adText": {
-            "A": "(가) 잔반 줄이기 공익 광고",
-            "B": "(나) 잔반 줄이기 공익 광고",
-            "C": "운동화 상업 광고"
-        },
         "q1": {
             "rowA": {"t": "'한 숟갈'을 '300kg'과 나란히 놓아, 작아 보이는 양이 모이면 큰 양이 된다는 것을 보여 줌.", "i": "한 숟갈의 밥 옆에 같은 밥을 산처럼 쌓아, 남긴 양이 실제로 얼마나 큰지를 보여 줌."},
             "items": [
@@ -70,11 +60,6 @@ SETS = [
     {
         "id": "set3",
         "adA": "set3_a.png", "adB": "set3_b.png", "adC": "set3_c.png",
-        "adText": {
-            "A": "(가) 층간소음 방지 공익 광고",
-            "B": "(나) 층간소음 방지 공익 광고",
-            "C": "무선 이어폰 상업 광고"
-        },
         "q1": {
             "rowA": {"t": "'당신의 발소리'를 '천장을 흔드는 것'이라고 말하여, 내게는 작은 소리가 아래층에서는 집을 흔드는 큰 소리가 된다는 것을 보여 줌.", "i": "위층의 발자국을 아래층 학생의 머리 위 그림자로 만들어, 소리가 아래층 사람을 누르는 무게가 된다는 것을 보여 줌."},
             "items": [
@@ -103,63 +88,36 @@ SETS = [
 HERE = Path(__file__).parent
 IMG_DIR = HERE / "images"
 
-st.set_page_config(page_title="서논술형 답안 연습", page_icon="📝", layout="wide")
+st.set_page_config(page_title="서논술형 답안 연습", page_icon="🕵️‍♂️", layout="wide")
 
 # ---------------------------------------------------------------- 상태 초기화
 ss = st.session_state
 if "answers" not in ss: ss.answers = {}
 if "graded" not in ss: ss.graded = set()
-if "student" not in ss: ss.student = ""
 
-# 문항 총 개수 계산
-TOTAL_Q = sum(len(s[qk]["items"]) for s in SETS for qk in ["q1", "q2", "q3"])
-
-# ---------------------------------------------------------------- 좌측 사이드바 (정보 제공 및 이름 입력)
+# ---------------------------------------------------------------- 좌측 사이드바 (개념 정리)
 with st.sidebar:
-    st.header("👤 학생 정보")
-    ss.student = st.text_input("학번과 이름을 입력하세요", value=ss.student, placeholder="예: 30215 홍길동")
-    if not ss.student:
-        st.warning("문항을 풀기 전 반드시 학번·이름을 입력해 주세요.")
-    
-    st.divider()
     st.header("💡 필수 개념 다지기")
     st.markdown("""
     **1. 광고·홍보물**
     - 상품이나 서비스를 구매하게 하거나 정보를 널리 알리려는 설득의 목적으로 제작됨.
     
     **2. 재현**
-    - 제작자가 자신의 관점과 의도를 담아 현실을 다시 나타내는 것. 특정 이미지나 문구를 선택적으로 사용함 (현실과 일치하지 않음).
+    - 제작자가 자신의 관점과 의도를 담아 현실을 다시 나타내는 것. 특정 이미지나 문구를 선택적으로 사용. (현실과 일치하지 않음)
     
     **3. 관점**
     - 대상을 무엇으로 보는가?
-    - **"( )를/을 ( )로/으로 본다"** 형태의 문장으로 정리.
+    - **"( )를/을 ( )로/으로 본다"**
     
     **4. 의도**
     - 수용자가 무엇을 하게 하려는가?
-    - **"광고를 본 사람이 ( )하게 하려 한다"** 형태의 문장으로 정리.
+    - **"광고를 본 사람이 ( )하게 하려 한다"**
     """)
 
-# ---------------------------------------------------------------- 상단 디자인 (진행률 및 네비게이션)
-PAGES = []
-for si, s in enumerate(SETS, 1):
-    for qi, qk in enumerate(["q1", "q2", "q3"], 1):
-        PAGES.append({"id": f"{s['id']}-{qk}", "set": s, "qkey": qk, "tab": f"{si}-{qi}", "name": f"📝 {si}번 세트 – 서·논술형 {qi}"})
-PAGES.append({"id": "review", "tab": "복습", "name": "📚 복습 및 결과 모아보기"})
-PAGE_IDS = [p["id"] for p in PAGES]
-
-if "page" not in ss: ss.page = PAGE_IDS[0]
-
-completed_q = len([k for k, v in ss.answers.items() if v.strip()])
-progress_val = completed_q / TOTAL_Q if TOTAL_Q > 0 else 0
-
-st.progress(progress_val)
-st.caption(f"**현재 진행 상황:** 전체 {TOTAL_Q}개 문항 중 {completed_q}개 작성 완료")
-st.divider()
-
-# ---------------------------------------------------------------- 구글 시트 연동 (행 단위 실시간 기록)
-def log_action_to_sheet(student_name, question_label, answer_text):
+# ---------------------------------------------------------------- 구글 시트 연동 (익명 로그)
+def log_action_to_sheet(set_id, qkey, label, answer_text):
     if "gcp_service_account" not in st.secrets or "SHEET_URL" not in st.secrets:
-        return # 시트 설정이 없으면 패스
+        return
     try:
         import gspread
         from google.oauth2.service_account import Credentials
@@ -168,150 +126,170 @@ def log_action_to_sheet(student_name, question_label, answer_text):
         sh = gspread.authorize(creds).open_by_url(st.secrets["SHEET_URL"])
         ws = sh.sheet1
         
-        # [제출시각, 학번·이름, 문항번호, 작성답안] 형태로 한 줄씩 누적 기록
-        row_data = [f"{dt.datetime.now():%Y-%m-%d %H:%M:%S}", student_name, question_label, answer_text]
+        # [제출시각, 세트-문항, 답란, 작성내용] (학생 개인정보 미수집)
+        row_data = [f"{dt.datetime.now():%Y-%m-%d %H:%M:%S}", f"[{set_id.upper()}] {qkey}", label, answer_text]
         ws.append_row(row_data)
-    except Exception as e:
-        st.error(f"데이터 기록 중 오류가 발생했습니다: {e}")
+    except Exception:
+        pass 
+
+# ---------------------------------------------------------------- 상단 디자인
+st.markdown("# 🕵️‍♂️ [국어] 서·논술형 답안 작성 연습")
+st.markdown("#### 작성한 답안을 입력한 뒤 문제의 조건에 맞게 작성하였는지 확인하세요.")
+
+st.markdown("""
+<div style="background-color: #f0f4f8; padding: 20px; border-radius: 10px; margin-bottom: 20px; border-left: 5px solid #2b6cb0;">
+<h4 style="margin-top: 0; color: #2b6cb0;">🎯 2학기 1회시험 대비 실전 모의고사</h4>
+그동안 탐정이 되어 광고 홍보물 속에 담긴 관점과 의도를 추리해 온 당신! 실력을 점검해 봅시다.<br><br>
+정기시험에 출제되는 서논술형 문제는 이 문항들과 자료만이 다를 뿐 동일한 질문을 던집니다.<br>
+반드시 <b>국어 공책에 붙은 학습지에 답을 쓰고, 자신이 쓴 답을 웹앱에 입력</b>하세요.<br>
+그래야 응답 받은 결과가 자신의 학습 재료가 됩니다. 무엇이 틀리고, 무엇이 맞았는지 명확하게 파악하고 자신의 답안이 갖추어야 하는 조건을 확인하세요.
+</div>
+""", unsafe_allow_html=True)
+
+# 진행바 (총 9개 문항 기준)
+completed = len(ss.graded)
+st.progress(completed / 9.0)
+st.markdown(f"**완료된 📝 : {completed}/9**")
+st.caption("세트 탭을 자유롭게 이동하면서, 각 세트 안에서 문항별로 즉각 피드백을 받을 수 있어요.")
+st.write("")
 
 # ---------------------------------------------------------------- UI 컴포넌트
-def akey(set_id, item_id):
-    return f"{set_id}-{item_id}"
-
-def answer_box_with_grade(set_id, it):
-    k = akey(set_id, it["id"])
-    widget = st.text_input if it.get("short") else st.text_area
-    val = widget(f"**{it['label']}**", value=ss.answers.get(k, ""), key=f"w-{k}", placeholder="여기에 답안을 작성하세요")
-    ss.answers[k] = val
-    
-    col1, col2 = st.columns([1, 4])
-    with col1:
-        if st.button("제출 및 예시답안 확인", key=f"btn-{k}", type="primary", use_container_width=True):
-            if not ss.student.strip():
-                st.error("사이드바에 학번·이름을 먼저 입력하세요.")
-            elif not val.strip():
-                st.warning("답안을 작성한 후 눌러주세요.")
-            else:
-                with st.spinner("기록 중..."):
-                    log_action_to_sheet(ss.student, it['label'], val)
-                ss.graded.add(k)
-                st.success("제출 완료!")
-                
-    if k in ss.graded:
-        with st.expander("✅ 예시 답안 보기 (스스로 비교하며 복습해 보세요)", expanded=True):
-            st.info(f"**[예시 답안]**\n\n{it['key']['ex']}")
-
 def cond(lines):
-    body = "\n".join(f"◦ {ln}" for ln in lines)
-    st.markdown(f"**〈조건〉**  \n{body}")
+    body = "<br>".join(f"• {ln}" for ln in lines)
+    st.markdown(f"""
+    <div style="background-color: #f8f9fa; border-left: 4px solid #4a90e2; padding: 10px 15px; margin-bottom: 15px; border-radius: 5px;">
+        <strong style="color: #4a90e2;">&lt;조건&gt;</strong><br>
+        <span style="font-size: 0.95em;">{body}</span>
+    </div>
+    """, unsafe_allow_html=True)
+
+def question_block(s, qkey, q_data):
+    k_q = f"{s['id']}-{qkey}"
+    inputs = {}
+    
+    for it in q_data["items"]:
+        k_it = f"{k_q}-{it['id']}"
+        widget = st.text_input if it.get("short") else st.text_area
+        val = widget(f"**{it['label']}**", value=ss.answers.get(k_it, ""), key=f"w-{k_it}")
+        inputs[k_it] = val
+
+    st.write("")
+    if st.button("🚀 제출하고 피드백 받기", key=f"btn-{k_q}", type="primary", use_container_width=True):
+        if all(v.strip() for v in inputs.values()):
+            for it in q_data["items"]:
+                k_it = f"{k_q}-{it['id']}"
+                ss.answers[k_it] = inputs[k_it]
+                log_action_to_sheet(s['id'], qkey, it['label'], inputs[k_it])
+            ss.graded.add(k_q)
+            st.success("✅ 제출 완료! 아래에서 피드백을 확인하세요.")
+        else:
+            st.warning("⚠️ 모든 빈칸에 답안을 작성한 후 제출해주세요.")
+
+    if k_q in ss.graded:
+        with st.expander("✅ 예시 답안 보기 (스스로 비교하며 점검해 보세요)", expanded=True):
+            for it in q_data["items"]:
+                st.markdown(f"**[{it['label']}] 예시 답안**")
+                st.info(it['key']['ex'])
 
 def ads(s):
-    st.markdown("##### [서·논술형 1~2] 다음 자료를 읽고 물음에 답하시오.")
     c1, c2 = st.columns(2)
     try: c1.image(str(IMG_DIR / s["adA"]), caption="(가)", use_column_width=True)
-    except: c1.info("(가) 광고 이미지 자리")
+    except: c1.info("(가) 광고 이미지 대기 중")
     try: c2.image(str(IMG_DIR / s["adB"]), caption="(나)", use_column_width=True)
-    except: c2.info("(나) 광고 이미지 자리")
+    except: c2.info("(나) 광고 이미지 대기 중")
 
 # ---------------------------------------------------------------- 문항 페이지 렌더링
 def page_q1(s):
-    q = s["q1"]; ads(s)
-    st.subheader(f"📝 {s['id'][-1]}번 세트 - 서·논술형 1")
+    q = s["q1"]
+    st.markdown("### 1. 재현 방식")
     st.write("두 광고의 재현 방식을 표로 정리하였다. ㉠~㉡에 들어갈 내용을 <조건>에 맞게 쓰시오.")
-    st.table({"": ["(가)", "(나)"], "문구": [q["rowA"]["t"], "( ㉠ )"], "이미지": [q["rowA"]["i"], "( ㉡ )"]})
-    
+    st.markdown(f"""
+| | 문구 | 이미지 |
+|:---:|---|---|
+| **(가)** | {q['rowA']['t']} | {q['rowA']['i']} |
+| **(나)** | ( ㉠ ) | ( ㉡ ) |
+    """)
     cond([
         "광고 문구·이미지와 그로 인한 효과를 한 문장으로 쓸 것.",
         "아래 문장 틀에 맞추어 쓸 것.",
-        "> - ( )을/를 ( )하여(만들어/넣어/불러), ( )을/를 보여 줌."
+        " - ( )을/를 ( )하여(만들어/넣어/불러), ( )을/를 보여 줌."
     ])
-    st.divider()
-    for it in q["items"]: 
-        answer_box_with_grade(s["id"], it)
-        st.write("")
+    question_block(s, "q1", q)
 
 def page_q2(s):
-    q = s["q2"]; ads(s)
-    st.subheader(f"📝 {s['id'][-1]}번 세트 - 서·논술형 2")
+    q = s["q2"]
+    st.markdown("### 2. 관점과 의도")
     st.write("두 광고에 담긴 제작자의 관점과 의도를 <조건>에 맞게 서술하시오.")
     cond([
         "광고에 재현된 내용에서 찾은 근거를 포함하여 기술할 것.",
         "아래 문장 틀에 맞추어 쓸 것.",
-        "> - 관점: 광고는 ( )을/를 ( )로/으로 본다. 왜냐하면 ( ) 때문이다.",
-        "> - 의도: 제작자는 광고를 본 사람이 ( )하게 하려 한다. 왜냐하면 ( ) 때문이다."
+        " - 관점: 광고는 ( )을/를 ( )로/으로 본다. 왜냐하면 ( ) 때문이다.",
+        " - 의도: 제작자는 광고를 본 사람이 ( )하게 하려 한다. 왜냐하면 ( ) 때문이다."
     ])
-    st.divider()
-    for it in q["items"]: 
-        answer_box_with_grade(s["id"], it)
-        st.write("")
+    question_block(s, "q2", q)
 
 def page_q3(s):
     q = s["q3"]
-    st.markdown("##### [서·논술형 3] 다음 자료를 읽고 물음에 답하시오.")
-    c1, c2 = st.columns([1, 1.15])
-    try: c1.image(str(IMG_DIR / s["adC"]), caption="[광고]", use_column_width=True)
-    except: c1.info("[광고] 이미지 자리")
-    with c2:
-        st.markdown("**[학생의 사고 과정]**")
-        st.info(f"{q['buy']}\n\n{q['think1']}\n\n{q['think2']}")
-    
-    st.subheader(f"📝 {s['id'][-1]}번 세트 - 서·논술형 3")
+    st.markdown("### 3. 비판적 읽기")
     st.markdown("**(1) ㉠, ㉡에 들어가기에 적절한 표현을 쓰시오.**")
-    answer_box_with_grade(s["id"], q["items"][0])
-    answer_box_with_grade(s["id"], q["items"][1])
-    
-    st.divider()
     st.markdown("**(2) 위 광고에 담긴 제작자의 의도를 재현 방법을 근거로 들어 서술하시오.**")
+    
+    st.markdown(f"""
+    <div style="background-color: #fcf8e3; padding: 15px; border-radius: 5px; margin-bottom: 15px;">
+    <strong>[학생의 사고 과정]</strong><br><br>
+    {q['buy']}<br><br>{q['think1']}<br><br>{q['think2']}
+    </div>
+    """, unsafe_allow_html=True)
+    
     cond([
         "광고에 재현된 내용에서 찾은 근거를 포함하여 기술할 것.",
         "아래 문장 틀에 맞추어 쓸 것.",
-        "> - 의도: 제작자는 광고를 본 사람이 ( )하게 하려 한다. 왜냐하면 ( ) 때문이다."
+        " - 의도: 제작자는 광고를 본 사람이 ( )하게 하려 한다. 왜냐하면 ( ) 때문이다."
     ])
-    answer_box_with_grade(s["id"], q["items"][2])
+    question_block(s, "q3", q)
+
+# ---------------------------------------------------------------- 네비게이션
+tabs = st.tabs(["[실전 적용 1]", "[실전 적용 2]", "[실전 적용 3]", "📚 전체 복습"])
+
+for i, tab in enumerate(tabs[:3]):
+    with tab:
+        s = SETS[i]
+        st.markdown("##### [서·논술형 1~2] 다음 자료를 읽고 물음에 답하시오.")
+        ads(s)
+        st.divider()
+        
+        q_choice = st.radio(f"문항 선택 ({s['id']})", ["1. 재현 방식", "2. 관점과 의도", "3. 비판적 읽기"], horizontal=True, label_visibility="collapsed")
+        
+        if q_choice == "1. 재현 방식":
+            page_q1(s)
+        elif q_choice == "2. 관점과 의도":
+            page_q2(s)
+        else:
+            st.markdown("##### [서·논술형 3] 다음 자료를 읽고 물음에 답하시오.")
+            try: st.image(str(IMG_DIR / s["adC"]), caption="[광고]", width=400)
+            except: st.info("[광고] 이미지 대기 중")
+            page_q3(s)
 
 # ---------------------------------------------------------------- 복습 탭
-def page_review():
+with tabs[3]:
     st.subheader("📚 나의 답안 복습하기")
     st.caption("지금까지 작성한 나의 답안과 예시 답안을 한눈에 비교하며 부족한 점을 점검해 보세요.")
     
     if not ss.graded:
-        st.info("아직 제출 및 확인을 완료한 문항이 없습니다. 문항을 풀고 '제출 및 예시답안 확인' 버튼을 눌러주세요.")
-        return
-
-    for s in SETS:
-        for qk in ["q1", "q2", "q3"]:
-            for it in s[qk]["items"]:
-                k = akey(s["id"], it["id"])
-                if k in ss.graded:
-                    my_ans = ss.answers.get(k, "")
-                    st.markdown(f"**[{s['id'][-1]}번 세트 - {it['label']}]**")
-                    col1, col2 = st.columns(2)
-                    with col1:
-                        st.success(f"**나의 답안:**\n\n{my_ans}")
-                    with col2:
-                        st.info(f"**예시 답안:**\n\n{it['key']['ex']}")
+        st.info("아직 제출을 완료한 문항이 없습니다. 문항을 풀고 '제출하고 피드백 받기' 버튼을 눌러주세요.")
+    else:
+        for s in SETS:
+            for qkey in ["q1", "q2", "q3"]:
+                k_q = f"{s['id']}-{qkey}"
+                if k_q in ss.graded:
+                    st.markdown(f"#### 📝 {s['id'][-1]}번 세트 - {qkey.upper()}")
+                    for it in s[qkey]["items"]:
+                        k_it = f"{k_q}-{it['id']}"
+                        my_ans = ss.answers.get(k_it, "미작성")
+                        st.markdown(f"**[{it['label']}]**")
+                        col1, col2 = st.columns(2)
+                        with col1:
+                            st.success(f"**나의 답안:**\n\n{my_ans}")
+                        with col2:
+                            st.info(f"**예시 답안:**\n\n{it['key']['ex']}")
                     st.divider()
-
-# ---------------------------------------------------------------- 네비게이션 및 렌더링
-choice = st.radio("문항 이동", [p["tab"] for p in PAGES], horizontal=True, label_visibility="collapsed", index=PAGE_IDS.index(ss.page))
-sel = next(p for p in PAGES if p["tab"] == choice)
-if sel["id"] != ss.page: 
-    ss.page = sel["id"]
-    st.rerun()
-
-idx = PAGE_IDS.index(ss.page)
-page = PAGES[idx]
-
-if page["id"] == "review": 
-    page_review()
-else:
-    {"q1": page_q1, "q2": page_q2, "q3": page_q3}[page["qkey"]](page["set"])
-
-st.divider()
-c1, c2 = st.columns(2)
-if idx > 0 and c1.button(f"← 이전: {PAGES[idx-1]['name']}", use_container_width=True):
-    ss.page = PAGE_IDS[idx - 1]
-    st.rerun()
-if idx < len(PAGES) - 1 and c2.button(f"다음: {PAGES[idx+1]['name']} →", type="primary", use_container_width=True):
-    ss.page = PAGE_IDS[idx + 1]
-    st.rerun()
