@@ -104,19 +104,19 @@ st.set_page_config(page_title="서·논술형 답안 연습", page_icon="🕵️
 # ---------------------------------------------------------------- 커스텀 CSS 디자인 (강제 적용)
 st.markdown("""
 <style>
-/* 1. 링크 앵커 아이콘 강제 숨김 처리 */
+/* 링크 앵커 아이콘 강제 숨김 처리 */
 .stMarkdown a.header-anchor, .stMarkdown a.header-anchor svg {
     display: none !important;
     visibility: hidden !important;
 }
 
-/* 2. 상단 메인 탭 서체 진하게 */
+/* 상단 메인 탭 서체 진하게 */
 .stTabs [data-baseweb="tab-list"] button [data-testid="stMarkdownContainer"] p {
     font-size: 1.3rem !important;
     font-weight: 800 !important;
 }
 
-/* 3. 하위 문항 선택 탭(Radio) 폴더 디자인 강제 적용 */
+/* 하위 문항 선택 탭(Radio) 폴더 디자인 강제 적용 */
 div[data-testid="stRadio"] > div {
     display: flex !important;
     flex-direction: row !important;
@@ -182,34 +182,48 @@ with st.sidebar:
     </div>
     """, unsafe_allow_html=True)
 
-# ---------------------------------------------------------------- 로컬 채점 로직
+# ---------------------------------------------------------------- 로컬 채점 로직 (피드백 팁 추가)
 def get_local_feedback(answer, label):
     ans = answer.replace(" ", "")
     if len(ans) < 3:
         return {"status": "error", "msg": "답안이 너무 짧습니다. 조건에 맞게 문장을 완성해 보세요."}
         
+    tip_header = "\n\n**💡 통과를 위한 수정 팁**\n문장의 끝부분만 조건에 맞게 살짝 다듬어 주시면 바로 정답(✅) 처리됩니다.\n"
+        
     if "문구" in label or "이미지" in label:
         if not any(word in ans for word in ["보여", "나타", "하게", "주어", "알게", "느끼", "전달", "효과", "위험", "경각심", "촉구"]):
-            return {"status": "error", "msg": "조건 누락: 광고의 문구나 이미지만 옮겨 쓰지 말고, 그것이 주는 '효과(의미나 수용자에게 미치는 영향)'를 반드시 서술해 보세요."}
+            tip = tip_header + "> \"...(이)라는 문구/이미지를 넣어, **~라는 것을 보여 줌(알게 함/느끼게 함).**\""
+            return {"status": "error", "msg": "조건 누락: 광고의 문구나 이미지만 옮겨 쓰지 말고, 그것이 주는 '효과(의미나 수용자에게 미치는 영향)'를 반드시 서술해 보세요." + tip}
         return {"status": "success", "msg": "조건에 맞게 잘 작성했습니다! 훌륭합니다."}
         
     if "관점" in label:
-        if "때문" not in ans:
-            return {"status": "error", "msg": "조건 누락: '왜냐하면 ~ 때문이다'라는 형식을 포함하여 근거를 명확히 제시해 보세요."}
-        if "본다" not in ans:
-            return {"status": "error", "msg": "조건 누락: '( )을/를 ( )로/으로 본다'라는 문장 틀에 맞추어 서술해 보세요."}
+        if "때문" not in ans and "본다" not in ans:
+            tip = tip_header + "> \"...(을)를 ...(으)로 **본다. 왜냐하면** ... 기 **때문이다.**\""
+            return {"status": "error", "msg": "조건 누락: '( )로 본다'는 문장 틀과 '왜냐하면 ~ 때문이다'라는 근거 제시 형식이 모두 빠져 있습니다." + tip}
+        elif "때문" not in ans:
+            tip = tip_header + "> \"... ~로 **본다. 왜냐하면** ... 기 **때문이다.**\""
+            return {"status": "error", "msg": "조건 누락: '왜냐하면 ~ 때문이다'라는 형식을 포함하여 근거를 명확히 제시해 보세요." + tip}
+        elif "본다" not in ans:
+            tip = tip_header + "> \"...(을)를 ...(으)로 **본다.** 왜냐하면...\""
+            return {"status": "error", "msg": "조건 누락: '( )을/를 ( )로/으로 본다'라는 문장 틀에 맞추어 서술해 보세요." + tip}
         return {"status": "success", "msg": "조건에 맞게 잘 작성했습니다! '~로 본다'는 문장 틀과 '왜냐하면 ~ 때문이다'라는 근거 제시 조건을 훌륭하게 충족했습니다."}
 
     if "의도" in label and "원본 광고" not in label:
         if "하려" not in ans:
-            return {"status": "error", "msg": "조건 누락: '( )하게 하려 한다'라는 문장 틀에 맞추어 서술해 보세요."}
+            tip = tip_header + "> \"광고를 본 사람이 ... **하게 하려 한다.**\""
+            return {"status": "error", "msg": "조건 누락: '( )하게 하려 한다'라는 문장 틀에 맞추어 서술해 보세요." + tip}
         return {"status": "success", "msg": "조건에 맞게 잘 작성했습니다! '~하게 하려 한다'는 문장 틀을 사용하여 제작자의 의도를 명확히 파악했습니다."}
 
     if "원본 광고의 제작자 의도" in label:
-        if "때문" not in ans:
-            return {"status": "error", "msg": "조건 누락: '왜냐하면 ~ 때문이다'라는 형식을 포함하여 근거를 명확히 제시해 보세요."}
-        if "하려" not in ans:
-            return {"status": "error", "msg": "조건 누락: '( )하게 하려 한다'라는 문장 틀에 맞추어 서술해 보세요."}
+        if "때문" not in ans and "하려" not in ans:
+            tip = tip_header + "> \"광고를 본 사람이 ... **하게 하려 한다. 왜냐하면** ... 기 **때문이다.**\""
+            return {"status": "error", "msg": "조건 누락: 의도 문장 틀과 근거 제시 형식이 모두 빠져 있습니다." + tip}
+        elif "때문" not in ans:
+            tip = tip_header + "> \"... **하게 하려 한다. 왜냐하면** ... 기 **때문이다.**\""
+            return {"status": "error", "msg": "조건 누락: '왜냐하면 ~ 때문이다'라는 형식을 포함하여 근거를 명확히 제시해 보세요." + tip}
+        elif "하려" not in ans:
+            tip = tip_header + "> \"광고를 본 사람이 ... **하게 하려 한다.** 왜냐하면...\""
+            return {"status": "error", "msg": "조건 누락: '( )하게 하려 한다'라는 문장 틀에 맞추어 서술해 보세요." + tip}
         return {"status": "success", "msg": "조건에 맞게 잘 작성했습니다! 문장 틀과 근거 제시 조건을 훌륭하게 충족했습니다."}
             
     return {"status": "success", "msg": "조건에 맞게 잘 작성했습니다!"}
@@ -238,8 +252,8 @@ st.progress(completed / 9.0)
 st.markdown(f"**이번 회차 내가 푼 문제 : {completed}/9**")
 st.write("")
 
-# ---------------------------------------------------------------- 구글 시트 연동 및 데이터 가공
-def log_action_to_sheet(set_id, qkey, label, answer_text, fb_status):
+# ---------------------------------------------------------------- 구글 시트 연동 및 데이터 가공 (피드백 메시지 추가)
+def log_action_to_sheet(set_id, qkey, label, answer_text, fb_status, fb_msg):
     if "gcp_service_account" not in st.secrets or "SHEET_URL" not in st.secrets:
         return
     try:
@@ -249,7 +263,7 @@ def log_action_to_sheet(set_id, qkey, label, answer_text, fb_status):
         creds = Credentials.from_service_account_info(info, scopes=["https://www.googleapis.com/auth/spreadsheets"])
         sh = gspread.authorize(creds).open_by_url(st.secrets["SHEET_URL"])
         ws = sh.sheet1
-        ws.append_row([f"{dt.datetime.now():%Y-%m-%d %H:%M:%S}", ss.student, f"[{set_id.upper()}] {qkey}", label, answer_text, fb_status])
+        ws.append_row([f"{dt.datetime.now():%Y-%m-%d %H:%M:%S}", ss.student, f"[{set_id.upper()}] {qkey}", label, answer_text, fb_status, fb_msg])
     except Exception:
         pass
 
@@ -273,8 +287,8 @@ def fetch_and_process_history(student_name):
                 label = row[3]
                 ans = row[4]
                 status = row[5] if len(row) > 5 else "unknown"
+                msg = row[6] if len(row) > 6 else ""
                 
-                # 영문 코드를 한글 풀 버전으로 변환 ([SET1] q1 -> [실전 적용 1] 1. 재현 방식)
                 set_num = raw_q.split("]")[0].replace("[SET", "")
                 q_num = raw_q.split(" ")[1].replace("q", "")
                 
@@ -291,10 +305,10 @@ def fetch_and_process_history(student_name):
                     "full_q_name": full_q_name,
                     "label": label,
                     "ans": ans,
-                    "status": status
+                    "status": status,
+                    "msg": msg
                 })
                 
-        # 1. 시간순으로 정렬하여 회차(1회, 2회) 계산
         parsed.sort(key=lambda x: x["time"])
         attempts = {}
         for p in parsed:
@@ -302,7 +316,6 @@ def fetch_and_process_history(student_name):
             attempts[key] = attempts.get(key, 0) + 1
             p["attempt"] = attempts[key]
             
-        # 2. 문항 번호 순서대로 재정렬 (세트 -> 문항 -> 라벨 -> 회차)
         parsed.sort(key=lambda x: (x["set_id"], x["q_id"], x["label"], x["attempt"]))
         return parsed
         
@@ -384,7 +397,7 @@ for i, tab in enumerate(tabs[:3]):
                         ss.answers[k_it] = inputs[k_it]
                         fb = get_local_feedback(inputs[k_it], it['label'])
                         ss.feedbacks[k_it] = fb
-                        log_action_to_sheet(s['id'], "q1", it['label'], inputs[k_it], fb["status"])
+                        log_action_to_sheet(s['id'], "q1", it['label'], inputs[k_it], fb["status"], fb["msg"])
                     ss.graded.add(k_q)
                 else:
                     st.warning("⚠️ 모든 빈칸에 내용을 입력하세요.")
@@ -430,7 +443,7 @@ for i, tab in enumerate(tabs[:3]):
                         ss.answers[k_it] = inputs[k_it]
                         fb = get_local_feedback(inputs[k_it], it['label'])
                         ss.feedbacks[k_it] = fb
-                        log_action_to_sheet(s['id'], "q2", it['label'], inputs[k_it], fb["status"])
+                        log_action_to_sheet(s['id'], "q2", it['label'], inputs[k_it], fb["status"], fb["msg"])
                     ss.graded.add(k_q)
                 else:
                     st.warning("⚠️ 모든 빈칸에 내용을 입력하세요.")
@@ -494,7 +507,7 @@ for i, tab in enumerate(tabs[:3]):
                         ss.answers[k_id] = inputs[k_id]
                         fb = get_local_feedback(inputs[k_id], i_it['label'])
                         ss.feedbacks[k_id] = fb
-                        log_action_to_sheet(s['id'], "q3", i_it['label'], inputs[k_id], fb["status"])
+                        log_action_to_sheet(s['id'], "q3", i_it['label'], inputs[k_id], fb["status"], fb["msg"])
                     ss.graded.add(k_q)
                 else:
                     st.warning("⚠️ 모든 빈칸에 내용을 입력하세요.")
@@ -529,7 +542,6 @@ with tabs[3]:
                 st.success(f"성공적으로 불러왔습니다! 문항 번호 순으로 과거 제출 내역을 보여줍니다.")
                 st.divider()
                 
-                # 문항별로 묶어서 순서대로 출력 및 상태 라벨 표시
                 current_q = None
                 for item in history_data:
                     if current_q != item['full_q_name']:
@@ -540,7 +552,12 @@ with tabs[3]:
                     
                     col_ans, col_stat = st.columns([4, 1])
                     with col_ans:
-                        st.info(f"나의 답안: {item['ans']}")
+                        st.info(f"**나의 답안:** {item['ans']}")
+                        if item['msg']:
+                            if item['status'] == "success":
+                                st.success(f"**피드백:**\n\n{item['msg']}")
+                            else:
+                                st.error(f"**피드백:**\n\n{item['msg']}")
                     with col_stat:
                         if item['status'] == "success":
                             st.success("✅ 조건 충족")
