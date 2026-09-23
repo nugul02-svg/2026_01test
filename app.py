@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import datetime as dt
+import os
 from pathlib import Path
 import streamlit as st
 
@@ -95,7 +96,7 @@ ss = st.session_state
 if "answers" not in ss: ss.answers = {}
 if "graded" not in ss: ss.graded = set()
 
-# ---------------------------------------------------------------- 좌측 사이드바 (개념 정리)
+# ---------------------------------------------------------------- 좌측 사이드바 (개념 정리 및 서버 진단)
 with st.sidebar:
     st.header("💡 필수 개념 다지기")
     st.markdown("""
@@ -113,6 +114,17 @@ with st.sidebar:
     - 수용자가 무엇을 하게 하려는가?
     - **"광고를 본 사람이 ( )하게 하려 한다"**
     """)
+    
+    st.divider()
+    st.markdown("🛠️ **시스템 진단 (이미지 에러 추적기)**")
+    if IMG_DIR.exists():
+        files = [f.name for f in IMG_DIR.iterdir()]
+        if files:
+            st.success(f"images 폴더를 찾았습니다! 내부 파일: {', '.join(files)}")
+        else:
+            st.warning("images 폴더는 있지만 안이 비어있습니다.")
+    else:
+        st.error(f"오류: {IMG_DIR} 경로에 images 폴더가 존재하지 않습니다.")
 
 # ---------------------------------------------------------------- 구글 시트 연동 (익명 로그)
 def log_action_to_sheet(set_id, qkey, label, answer_text):
@@ -126,7 +138,6 @@ def log_action_to_sheet(set_id, qkey, label, answer_text):
         sh = gspread.authorize(creds).open_by_url(st.secrets["SHEET_URL"])
         ws = sh.sheet1
         
-        # [제출시각, 세트-문항, 답란, 작성내용] (학생 개인정보 미수집)
         row_data = [f"{dt.datetime.now():%Y-%m-%d %H:%M:%S}", f"[{set_id.upper()}] {qkey}", label, answer_text]
         ws.append_row(row_data)
     except Exception:
@@ -146,7 +157,6 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# 진행바 (총 9개 문항 기준)
 completed = len(ss.graded)
 st.progress(completed / 9.0)
 st.markdown(f"**완료된 📝 : {completed}/9**")
@@ -193,10 +203,15 @@ def question_block(s, qkey, q_data):
 
 def ads(s):
     c1, c2 = st.columns(2)
-    try: c1.image(str(IMG_DIR / s["adA"]), caption="(가)", use_column_width=True)
-    except: c1.info("(가) 광고 이미지 대기 중")
-    try: c2.image(str(IMG_DIR / s["adB"]), caption="(나)", use_column_width=True)
-    except: c2.info("(나) 광고 이미지 대기 중")
+    try:
+        c1.image(str(IMG_DIR / s["adA"]), caption="(가)", use_container_width=True)
+    except Exception as e:
+        c1.error(f"(가) 이미지 에러: {e}")
+        
+    try:
+        c2.image(str(IMG_DIR / s["adB"]), caption="(나)", use_container_width=True)
+    except Exception as e:
+        c2.error(f"(나) 이미지 에러: {e}")
 
 # ---------------------------------------------------------------- 문항 페이지 렌더링
 def page_q1(s):
@@ -266,8 +281,10 @@ for i, tab in enumerate(tabs[:3]):
             page_q2(s)
         else:
             st.markdown("##### [서·논술형 3] 다음 자료를 읽고 물음에 답하시오.")
-            try: st.image(str(IMG_DIR / s["adC"]), caption="[광고]", width=400)
-            except: st.info("[광고] 이미지 대기 중")
+            try:
+                st.image(str(IMG_DIR / s["adC"]), caption="[광고]", use_container_width=True)
+            except Exception as e:
+                st.error(f"[광고] 이미지 에러: {e}")
             page_q3(s)
 
 # ---------------------------------------------------------------- 복습 탭
