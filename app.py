@@ -116,26 +116,45 @@ st.markdown("""
     font-weight: 800 !important;
 }
 
-/* 하위 문항 선택 탭(Radio) 폴더 디자인 강제 적용 */
+/* 메인 탭 붉은색 활성화 디자인 */
+button[data-baseweb="tab"][aria-selected="true"] {
+    color: #ff4b4b !important;
+    border-bottom: 2px solid #ff4b4b !important;
+}
+button[data-baseweb="tab"][aria-selected="true"] p {
+    color: #ff4b4b !important;
+}
+
+/* 하위 문항 선택 탭(Radio) 버튼형 디자인 강제 적용 */
 div[data-testid="stRadio"] > div {
     display: flex !important;
     flex-direction: row !important;
-    gap: 5px !important;
+    gap: 10px !important;
+    margin-bottom: 25px !important;
+    width: 100% !important;
 }
 div[data-testid="stRadio"] label {
-    background-color: #f1f3f5 !important;
-    padding: 10px 20px !important;
-    border-radius: 10px 10px 0 0 !important;
+    flex: 1 !important;
+    background-color: #ffffff !important;
     border: 1px solid #ced4da !important;
-    border-bottom: none !important;
-    font-weight: bold !important;
+    border-radius: 8px !important;
+    padding: 12px 10px !important;
+    justify-content: center !important;
+    align-items: center !important;
     cursor: pointer !important;
     margin: 0 !important;
 }
+/* 스트림릿 기본 동그라미 라디오 버튼 강제 숨김 */
+div[data-testid="stRadio"] label > div:first-child {
+    display: none !important;
+}
 div[data-testid="stRadio"] label[data-checked="true"] {
-    background-color: #ffffff !important;
-    border-top: 3px solid #2b6cb0 !important;
-    color: #2b6cb0 !important;
+    background-color: #1a73e8 !important; /* 파란색 활성화 */
+    border-color: #1a73e8 !important;
+}
+div[data-testid="stRadio"] label[data-checked="true"] p {
+    color: #ffffff !important; /* 흰색 글씨 */
+    font-weight: bold !important;
 }
 
 /* 입력창 하단의 Press Enter to apply 숨기기 */
@@ -154,77 +173,90 @@ if "student" not in ss: ss.student = ""
 
 # ---------------------------------------------------------------- 사이드바 (학습 도우미)
 with st.sidebar:
-    st.markdown("### 👤 학생 정보")
+    st.markdown("<div style='font-size:1.2em; font-weight:bold; margin-bottom:10px;'>👤 학생 정보</div>", unsafe_allow_html=True)
     st.caption("자신의 학번과 이름을 입력하면 자신의 회차별 응답 결과와 채점 정보가 누적됩니다.")
     ss.student = st.text_input("학번과 이름", value=ss.student, placeholder="예: 20100 조중이", label_visibility="collapsed")
     
     st.divider()
     
-    st.markdown("### 💡 학습 도우미")
+    st.markdown("<div style='font-size:1.5em; font-weight:bold; margin-bottom:15px;'>📖 개념 길잡이</div>", unsafe_allow_html=True)
     
-    st.markdown("#### 1) 시험 범위")
-    st.markdown("• 교과서 96-97쪽 본문 (교과서 본문이 출제됩니다)\n• 국어 학습지 전체")
-    st.write("")
+    with st.expander("📝 1) 시험 범위", expanded=True):
+        st.markdown("• 교과서 96-97쪽 본문 (교과서 본문이 출제됩니다)\n• 국어 학습지 전체")
     
-    st.markdown("#### 2) 반드시 알아야 할 개념")
-    st.markdown("• **재현**: 현실을 재구성했으나 현실과 똑같지 않음. 광고에서는 문구와 이미지로 드러남.")
-    st.markdown("• **관점**: 제작자가 대상을 보는 시선.")
-    st.markdown("""
-    <div style="background-color: #e8f4f8; padding: 10px; border-left: 4px solid #2b6cb0; border-radius: 4px; margin-bottom: 10px;">
-        <span style="font-weight: bold; color: #2b6cb0;">[TIP]</span> "( )을/를 ( )으로/로 본다"의 문장 형태로 정리할 수 있음.
-    </div>
-    """, unsafe_allow_html=True)
-    
-    st.markdown("• **의도**: 제작자가 수용자에게 하게 하려는 것.")
-    st.markdown("""
-    <div style="background-color: #e8f4f8; padding: 10px; border-left: 4px solid #2b6cb0; border-radius: 4px;">
-        <span style="font-weight: bold; color: #2b6cb0;">[TIP]</span> "광고를 본 사람이 ( )하게 하려 한다"의 문장 형태로 정리할 수 있음.
-    </div>
-    """, unsafe_allow_html=True)
+    with st.expander("📝 2) 반드시 알아야 할 개념", expanded=True):
+        st.markdown("• **재현**: 현실을 재구성했으나 현실과 똑같지 않음. 광고에서는 문구와 이미지로 드러남.")
+        st.markdown("• **관점**: 제작자가 대상을 보는 시선.")
+        st.markdown("""
+        <div style="background-color: #e8f4f8; padding: 10px; border-left: 4px solid #2b6cb0; border-radius: 4px; margin-bottom: 10px;">
+            <span style="font-weight: bold; color: #2b6cb0;">[TIP]</span> "( )을/를 ( )으로/로 본다"의 문장 형태로 정리할 수 있음.
+        </div>
+        """, unsafe_allow_html=True)
+        
+        st.markdown("• **의도**: 제작자가 수용자에게 하게 하려는 것.")
+        st.markdown("""
+        <div style="background-color: #e8f4f8; padding: 10px; border-left: 4px solid #2b6cb0; border-radius: 4px;">
+            <span style="font-weight: bold; color: #2b6cb0;">[TIP]</span> "광고를 본 사람이 ( )하게 하려 한다"의 문장 형태로 정리할 수 있음.
+        </div>
+        """, unsafe_allow_html=True)
 
-# ---------------------------------------------------------------- 로컬 채점 로직 (피드백 팁 추가)
+# ---------------------------------------------------------------- 로컬 채점 로직 (융통성 대폭 강화)
 def get_local_feedback(answer, label):
     ans = answer.replace(" ", "")
     if len(ans) < 3:
-        return {"status": "error", "msg": "답안이 너무 짧습니다. 조건에 맞게 문장을 완성해 보세요."}
+        return {"status": "error", "msg": "답안이 너무 짧습니다. 의미가 잘 드러나게 문장을 완성해 보세요."}
         
-    tip_header = "\n\n**💡 통과를 위한 수정 팁**\n문장의 끝부분만 조건에 맞게 살짝 다듬어 주시면 바로 정답(✅) 처리됩니다.\n"
-        
+    # 문구 ↔ 이미지 교차 입력 원천 차단
+    if "문구" in label:
+        if any(w in ans for w in ["이미지", "그림", "사진", "모습"]):
+            return {"status": "error", "msg": "💡 문구(글)에 대한 분석을 쓰는 칸인데, 이미지나 그림에 대한 설명이 섞여 있는 것 같아요. 다시 확인해 보세요!"}
+    if "이미지" in label:
+        if any(w in ans for w in ["문구", "글씨", "글귀", "텍스트", "문장"]):
+            return {"status": "error", "msg": "💡 이미지(그림)에 대한 분석을 쓰는 칸인데, 문구(글)에 대한 설명이 섞여 있는 것 같아요. 다시 확인해 보세요!"}
+            
     if "문구" in label or "이미지" in label:
-        if not any(word in ans for word in ["보여", "나타", "하게", "주어", "알게", "느끼", "전달", "효과", "위험", "경각심", "촉구"]):
-            tip = tip_header + "> \"...(이)라는 문구/이미지를 넣어, **~라는 것을 보여 줌(알게 함/느끼게 함).**\""
-            return {"status": "error", "msg": "조건 누락: 광고의 문구나 이미지만 옮겨 쓰지 말고, 그것이 주는 '효과(의미나 수용자에게 미치는 영향)'를 반드시 서술해 보세요." + tip}
-        return {"status": "success", "msg": "조건에 맞게 잘 작성했습니다! 훌륭합니다."}
+        # 효과 키워드 대폭 확장 (깨닫, 이해, 알려, 생각 등 추가)
+        effect_words = ["보여", "나타", "하게", "주어", "알게", "느끼", "전달", "효과", "위험", "경각심", "촉구", "깨닫", "생각", "유도", "이해", "알려", "강조"]
+        if not any(w in ans for w in effect_words):
+            return {"status": "error", "msg": "💡 조건 누락: 광고의 문구나 이미지만 옮겨 쓰지 말고, 그것이 주는 '효과(의미나 수용자에게 미치는 영향)'를 서술해 보세요. (예: ~라는 것을 깨닫게 함, ~효과를 줌 등)"}
+        return {"status": "success", "msg": "문맥과 조건에 맞게 잘 작성했습니다! 훌륭합니다."}
         
     if "관점" in label:
-        if "때문" not in ans and "본다" not in ans:
-            tip = tip_header + "> \"...(을)를 ...(으)로 **본다. 왜냐하면** ... 기 **때문이다.**\""
-            return {"status": "error", "msg": "조건 누락: '( )로 본다'는 문장 틀과 '왜냐하면 ~ 때문이다'라는 근거 제시 형식이 모두 빠져 있습니다." + tip}
-        elif "때문" not in ans:
-            tip = tip_header + "> \"... ~로 **본다. 왜냐하면** ... 기 **때문이다.**\""
-            return {"status": "error", "msg": "조건 누락: '왜냐하면 ~ 때문이다'라는 형식을 포함하여 근거를 명확히 제시해 보세요." + tip}
-        elif "본다" not in ans:
-            tip = tip_header + "> \"...(을)를 ...(으)로 **본다.** 왜냐하면...\""
-            return {"status": "error", "msg": "조건 누락: '( )을/를 ( )로/으로 본다'라는 문장 틀에 맞추어 서술해 보세요." + tip}
-        return {"status": "success", "msg": "조건에 맞게 잘 작성했습니다! '~로 본다'는 문장 틀과 '왜냐하면 ~ 때문이다'라는 근거 제시 조건을 훌륭하게 충족했습니다."}
+        # 근거 및 관점 서술어 유연하게 수용
+        reason_words = ["때문", "이유", "까닭", "왜냐하면", "보아", "보면", "라서", "므로", "통해", "여서", "어서"]
+        view_words = ["본다", "보여", "생각", "여긴", "간주", "의미", "관점", "바라", "로본다", "으로본다", "여긴다"]
+        
+        has_reason = any(w in ans for w in reason_words)
+        has_view = any(w in ans for w in view_words)
+        
+        if not has_reason and not has_view:
+            return {"status": "error", "msg": "💡 조건 누락: 대상을 어떻게 바라보는지(~로 본다), 그리고 그 근거가 무엇인지(~때문이다)를 모두 포함해서 써보세요."}
+        elif not has_reason:
+            return {"status": "error", "msg": "💡 조건 누락: 관점은 잘 찾았는데, 그렇게 생각한 '근거(이유, ~때문이다 등)'가 빠져 있습니다."}
+        elif not has_view:
+            return {"status": "error", "msg": "💡 조건 누락: 근거는 좋은데, 그래서 대상을 무엇으로 '보는지(~로 본다, ~라고 생각한다 등)'에 대한 결론이 명확하지 않습니다."}
+        return {"status": "success", "msg": "문장 틀과 문맥에 맞게 잘 작성했습니다! 훌륭합니다."}
 
     if "의도" in label and "원본 광고" not in label:
-        if "하려" not in ans:
-            tip = tip_header + "> \"광고를 본 사람이 ... **하게 하려 한다.**\""
-            return {"status": "error", "msg": "조건 누락: '( )하게 하려 한다'라는 문장 틀에 맞추어 서술해 보세요." + tip}
-        return {"status": "success", "msg": "조건에 맞게 잘 작성했습니다! '~하게 하려 한다'는 문장 틀을 사용하여 제작자의 의도를 명확히 파악했습니다."}
+        intent_words = ["하려", "하기", "하게", "유도", "목적", "바란다", "원한", "만들려", "의도", "바람", "이끌", "행동"]
+        if not any(w in ans for w in intent_words):
+            return {"status": "error", "msg": "💡 조건 누락: 제작자가 수용자에게 어떤 행동이나 생각을 '하게 하려는지(~하게 하려 한다, ~가 목적이다 등)'가 명확히 드러나게 써보세요."}
+        return {"status": "success", "msg": "제작자의 의도를 문맥에 맞게 잘 파악했습니다! 훌륭합니다."}
 
     if "원본 광고의 제작자 의도" in label:
-        if "때문" not in ans and "하려" not in ans:
-            tip = tip_header + "> \"광고를 본 사람이 ... **하게 하려 한다. 왜냐하면** ... 기 **때문이다.**\""
-            return {"status": "error", "msg": "조건 누락: 의도 문장 틀과 근거 제시 형식이 모두 빠져 있습니다." + tip}
-        elif "때문" not in ans:
-            tip = tip_header + "> \"... **하게 하려 한다. 왜냐하면** ... 기 **때문이다.**\""
-            return {"status": "error", "msg": "조건 누락: '왜냐하면 ~ 때문이다'라는 형식을 포함하여 근거를 명확히 제시해 보세요." + tip}
-        elif "하려" not in ans:
-            tip = tip_header + "> \"광고를 본 사람이 ... **하게 하려 한다.** 왜냐하면...\""
-            return {"status": "error", "msg": "조건 누락: '( )하게 하려 한다'라는 문장 틀에 맞추어 서술해 보세요." + tip}
-        return {"status": "success", "msg": "조건에 맞게 잘 작성했습니다! 문장 틀과 근거 제시 조건을 훌륭하게 충족했습니다."}
+        reason_words = ["때문", "이유", "까닭", "왜냐하면", "보아", "보면", "라서", "므로", "통해", "여서", "어서"]
+        intent_words = ["하려", "하기", "하게", "유도", "목적", "바란다", "원한", "만들려", "의도", "바람", "이끌", "행동"]
+        
+        has_reason = any(w in ans for w in reason_words)
+        has_intent = any(w in ans for w in intent_words)
+        
+        if not has_reason and not has_intent:
+            return {"status": "error", "msg": "💡 조건 누락: 제작자의 의도(~하게 하려 한다)와 그 근거(~때문이다)를 모두 포함해서 써보세요."}
+        elif not has_reason:
+            return {"status": "error", "msg": "💡 조건 누락: 의도는 잘 찾았는데, 광고의 어떤 부분을 보고 그렇게 생각했는지 '근거(~때문이다 등)'가 빠져 있습니다."}
+        elif not has_intent:
+            return {"status": "error", "msg": "💡 조건 누락: 근거는 좋은데, 그래서 결국 수용자가 어떻게 '행동하기를 바라는지(~하게 하려 한다 등)'가 명확하지 않습니다."}
+        return {"status": "success", "msg": "제작자의 의도와 근거를 문맥에 맞게 훌륭하게 작성했습니다!"}
             
     return {"status": "success", "msg": "조건에 맞게 잘 작성했습니다!"}
 
@@ -241,18 +273,18 @@ def get_base64_image(file_name, label):
         </div>
         """
     except Exception:
-        return f"<div style='background-color: #f8f9fa; padding: 20px; text-align: center; border-radius: 10px;'><strong style='color: #343a40;'>{label}</strong><br>이미지 로드 대기 중...</div>"
+        return f"<div style='background-color: #f8f9fa; padding: 20px; text-align: center; border-radius: 10px;'><strong style='color: #343a40;'>{label}</strong><br>이미 로드 대기 중...</div>"
 
-# ---------------------------------------------------------------- 상단 디자인
-st.markdown("### 🕵️‍♂️ [국어] 서·논술형 답안 작성 연습")
-st.markdown("##### 작성한 답안을 입력한 뒤 문제의 조건에 맞게 작성하였는지 확인하세요.")
+# ---------------------------------------------------------------- 상단 디자인 (HTML 강제 적용)
+st.markdown("<div style='font-size: 2em; font-weight: bold; margin-bottom: 0.2em;'>🕵️‍♂️ [국어] 서·논술형 답안 작성 연습</div>", unsafe_allow_html=True)
+st.markdown("<div style='font-size: 1.2em; color: #555; margin-bottom: 1em;'>작성한 답안을 입력한 뒤 문제의 조건에 맞게 작성하였는지 확인하세요.</div>", unsafe_allow_html=True)
 
 completed = len(ss.graded)
 st.progress(completed / 9.0)
 st.markdown(f"**이번 회차 내가 푼 문제 : {completed}/9**")
 st.write("")
 
-# ---------------------------------------------------------------- 구글 시트 연동 및 데이터 가공 (피드백 메시지 추가)
+# ---------------------------------------------------------------- 구글 시트 연동 및 데이터 가공
 def log_action_to_sheet(set_id, qkey, label, answer_text, fb_status, fb_msg):
     if "gcp_service_account" not in st.secrets or "SHEET_URL" not in st.secrets:
         return
@@ -350,12 +382,12 @@ for i, tab in enumerate(tabs[:3]):
         c2.markdown(get_base64_image(s["adB"], "(나)"), unsafe_allow_html=True)
         st.write("")
         
-        q_choice = st.radio(f"문항 선택 ({s['id']})", ["1. 재현 방식", "2. 관점과 의도", "3. 비판적 읽기"], horizontal=True, label_visibility="collapsed")
+        q_choice = st.radio(f"문항 선택 ({s['id']})", ["✏️ 1. 재현 방식", "✏️ 2. 관점과 의도", "✏️ 3. 비판적 읽기"], horizontal=True, label_visibility="collapsed")
         
-        if q_choice == "1. 재현 방식":
+        if q_choice == "✏️ 1. 재현 방식":
             q = s["q1"]
             k_q = f"{s['id']}-q1"
-            st.markdown("##### 1. 재현 방식")
+            st.markdown("<div style='font-size:1.3em; font-weight:bold; margin-bottom:10px;'>1. 재현 방식</div>", unsafe_allow_html=True)
             st.write("두 광고의 재현 방식을 표로 정리하였다. ㉠~㉡에 들어갈 내용을 쓰시오.")
             st.markdown(f"""
             <table style="width:100%; border-collapse: collapse; text-align: left; margin-bottom: 20px;">
@@ -410,14 +442,14 @@ for i, tab in enumerate(tabs[:3]):
                     if fb["status"] == "success":
                         st.success(f"✅ {fb['msg']}")
                     else:
-                        st.error(f"💡 아쉬운 부분이 있어요. 아래 안내를 참고해 보완해 보세요.\n\n{fb['msg']}")
+                        st.error(f"{fb['msg']}")
                     with st.expander("👀 모범 답안 보기"):
                         st.info(it['key']['ex'])
             
-        elif q_choice == "2. 관점과 의도":
+        elif q_choice == "✏️ 2. 관점과 의도":
             q = s["q2"]
             k_q = f"{s['id']}-q2"
-            st.markdown("##### 2. 관점과 의도")
+            st.markdown("<div style='font-size:1.3em; font-weight:bold; margin-bottom:10px;'>2. 관점과 의도</div>", unsafe_allow_html=True)
             st.write("두 광고에 담긴 제작자의 관점과 의도를 <조건>에 맞게 서술하시오.")
             cond_box(
                 ["광고에 재현된 내용에서 찾은 근거를 포함하여 기술할 것.", "아래 문장 틀에 맞추어 쓸 것. (단, 의도를 작성할 때는 이유를 쓰지 않아도 됨.)"],
@@ -456,14 +488,14 @@ for i, tab in enumerate(tabs[:3]):
                     if fb["status"] == "success":
                         st.success(f"✅ {fb['msg']}")
                     else:
-                        st.error(f"💡 아쉬운 부분이 있어요. 아래 안내를 참고해 보완해 보세요.\n\n{fb['msg']}")
+                        st.error(f"{fb['msg']}")
                     with st.expander("👀 모범 답안 보기"):
                         st.info(it['key']['ex'])
             
         else:
             q = s["q3"]
             k_q = f"{s['id']}-q3"
-            st.markdown("##### 3. 비판적 읽기")
+            st.markdown("<div style='font-size:1.3em; font-weight:bold; margin-bottom:10px;'>3. 비판적 읽기</div>", unsafe_allow_html=True)
             
             col_ad, col_think = st.columns([1, 1.2])
             with col_ad:
@@ -520,13 +552,13 @@ for i, tab in enumerate(tabs[:3]):
                     if fb["status"] == "success":
                         st.success(f"✅ {fb['msg']}")
                     else:
-                        st.error(f"💡 아쉬운 부분이 있어요. 아래 안내를 참고해 보완해 보세요.\n\n{fb['msg']}")
+                        st.error(f"{fb['msg']}")
                     with st.expander("👀 모범 답안 보기"):
                         st.info(i_it['key']['ex'])
 
 # ---------------------------------------------------------------- 학습 기록 탭
 with tabs[3]:
-    st.markdown("### 📝 누적 학습 기록")
+    st.markdown("<div style='font-size:1.5em; font-weight:bold; margin-bottom:10px;'>📝 누적 학습 기록</div>", unsafe_allow_html=True)
     st.caption("구글 스프레드시트에 안전하게 보관된 회차별 누적 학습 기록을 불러옵니다.")
     
     if not ss.student:
@@ -545,7 +577,7 @@ with tabs[3]:
                 current_q = None
                 for item in history_data:
                     if current_q != item['full_q_name']:
-                        st.markdown(f"#### 📚 {item['full_q_name']}")
+                        st.markdown(f"<div style='font-size:1.3em; font-weight:bold; margin-top:20px; margin-bottom:10px;'>📚 {item['full_q_name']}</div>", unsafe_allow_html=True)
                         current_q = item['full_q_name']
                         
                     st.markdown(f"**[{item['label']}] - {item['attempt']}회 응시**")
