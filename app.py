@@ -5,7 +5,7 @@ from pathlib import Path
 import pandas as pd
 import streamlit as st
 
-# ---------------------------------------------------------------- 데이터 세트 (지문 삭제 완료)
+# ---------------------------------------------------------------- 데이터 세트
 SETS = [
     {
         "id": "set1",
@@ -90,37 +90,31 @@ SETS = [
 HERE = Path(__file__).parent
 IMG_DIR = HERE / "images"
 
-st.set_page_config(page_title="서·논술형 답안 연습", page_icon="🕵️‍♂️", layout="wide")
+st.set_page_config(page_title="서·논술형 답안 연습", page_icon="🔎", layout="wide")
 
 # ---------------------------------------------------------------- 커스텀 CSS 디자인
 st.markdown("""
 <style>
-/* 2. 상단 탭 서체를 크고 진하게 */
+/* 탭 서체를 크고 진하게 */
 .stTabs [data-baseweb="tab-list"] button [data-testid="stMarkdownContainer"] p {
     font-size: 1.3rem !important;
     font-weight: 800 !important;
 }
-
-/* 7. 문항 선택 서브 탭을 폴더 모양으로 */
+/* 문항 선택 서브 탭을 폴더 모양으로 */
 div[role="radiogroup"] {
-    display: flex;
-    flex-direction: row;
-    gap: 5px;
-    margin-bottom: 20px;
+    display: flex; flex-direction: row; gap: 5px; margin-bottom: 20px;
 }
 div[role="radiogroup"] > label {
-    background-color: #f1f3f5;
-    padding: 10px 20px !important;
-    border-radius: 10px 10px 0 0 !important;
-    border: 1px solid #ced4da;
-    border-bottom: none;
-    font-weight: bold;
-    cursor: pointer;
+    background-color: #f1f3f5; padding: 10px 20px !important;
+    border-radius: 10px 10px 0 0 !important; border: 1px solid #ced4da;
+    border-bottom: none; font-weight: bold; cursor: pointer;
 }
 div[role="radiogroup"] > label[data-checked="true"] {
-    background-color: #ffffff;
-    border-top: 3px solid #2b6cb0;
-    color: #2b6cb0;
+    background-color: #ffffff; border-top: 3px solid #2b6cb0; color: #2b6cb0;
+}
+/* 입력창 하단의 불필요한 도움말(Press Enter...) 숨기기 */
+div[data-testid="InputInstructions"] {
+    display: none !important;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -132,69 +126,60 @@ if "graded" not in ss: ss.graded = set()
 if "feedbacks" not in ss: ss.feedbacks = {}
 if "student" not in ss: ss.student = ""
 
-# ---------------------------------------------------------------- 사이드바 (개념 길잡이 개편)
+# ---------------------------------------------------------------- 사이드바 (학습 도우미)
 with st.sidebar:
     st.markdown("### 👤 학생 정보")
-    st.caption("자신의 학번과 이름을 입력하면 자신의 회차별 응답 결과와 채점 정보가 누적됩니다. 웹앱 사용을 통해 신장된 실력을 확인하고 싶다면 학번과 이름을 입력한 뒤 문제를 푸세요.")
+    st.caption("자신의 학번과 이름을 입력하면 자신의 회차별 응답 결과와 채점 정보가 누적됩니다.")
     ss.student = st.text_input("학번과 이름", value=ss.student, placeholder="예: 20100 조중이", label_visibility="collapsed")
     
     st.divider()
     
-    st.markdown("### 💡 개념 길잡이")
+    st.markdown("### 💡 학습 도우미")
     
-    st.markdown("#### 1) 시험 범위")
+    # 1) 시험 범위
     st.markdown("""
-    • 교과서 96-97쪽 본문 (교과서 본문이 출제됩니다)
-    • 국어 학습지 전체
-    """)
-    
-    st.markdown("#### 2) 반드시 알아야 할 개념")
-    st.markdown("• **재현**: 현실을 재구성했으나 현실과 똑같지 않음. 광고에서는 문구와 이미지로 드러남.")
-    st.markdown("• **관점**: 제작자가 대상을 보는 시선.")
-    st.markdown("""
-    <div style="background-color: #e8f4f8; padding: 8px; border-left: 4px solid #2b6cb0; border-radius: 4px; margin-bottom: 10px;">
-        <span style="font-size: 0.85em; font-weight: bold; color: #2b6cb0;">[TIP]</span> 
-        <span style="font-size: 0.85em;">"( )을/를 ( )으로/로 본다"의 문장 형태로 정리할 수 있음.</span>
+    <div style="background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 5px; padding: 15px; margin-bottom: 15px;">
+        <strong style="color: #495057;">1) 시험 범위</strong><br>
+        • 교과서 96-97쪽 본문 (교과서 본문이 출제됩니다)<br>
+        • 국어 학습지 전체
     </div>
     """, unsafe_allow_html=True)
     
-    st.markdown("• **의도**: 제작자가 수용자에게 하게 하려는 것.")
+    # 2) 반드시 알아야 할 개념
     st.markdown("""
-    <div style="background-color: #e8f4f8; padding: 8px; border-left: 4px solid #2b6cb0; border-radius: 4px;">
-        <span style="font-size: 0.85em; font-weight: bold; color: #2b6cb0;">[TIP]</span> 
-        <span style="font-size: 0.85em;">"광고를 본 사람이 ( )하게 하려 한다"의 문장 형태로 정리할 수 있음.</span>
+    <div style="background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 5px; padding: 15px;">
+        <strong style="color: #495057;">2) 반드시 알아야 할 개념</strong><br><br>
+        • <b>재현</b>: 현실을 재구성했으나 현실과 똑같지 않음. 광고에서는 문구와 이미지로 드러남.<br><br>
+        • <b>관점</b>: 제작자가 대상을 보는 시선.<br>
+        <div style="background-color: #e8f4f8; padding: 8px; border-left: 4px solid #2b6cb0; border-radius: 4px; margin: 5px 0 10px 0;">
+            <span style="font-size: 0.85em; font-weight: bold; color: #2b6cb0;">[TIP]</span> 
+            <span style="font-size: 0.85em;">"( )을/를 ( )으로/로 본다"의 문장 형태로 정리할 수 있음.</span>
+        </div>
+        • <b>의도</b>: 제작자가 수용자에게 하게 하려는 것.<br>
+        <div style="background-color: #e8f4f8; padding: 8px; border-left: 4px solid #2b6cb0; border-radius: 4px; margin-top: 5px;">
+            <span style="font-size: 0.85em; font-weight: bold; color: #2b6cb0;">[TIP]</span> 
+            <span style="font-size: 0.85em;">"광고를 본 사람이 ( )하게 하려 한다"의 문장 형태로 정리할 수 있음.</span>
+        </div>
     </div>
     """, unsafe_allow_html=True)
 
-# ---------------------------------------------------------------- 인공지능 채점 함수
-def get_ai_feedback(q_label, answer, rubric):
-    if not answer.strip(): return "답안이 비어 있습니다."
-    if "ANTHROPIC_API_KEY" not in st.secrets:
-        return "⚠️ AI API 키가 설정되지 않아 자동 채점을 진행할 수 없습니다. 선생님께 문의하세요."
-    
-    try:
-        import anthropic
-        client = anthropic.Anthropic(api_key=st.secrets["ANTHROPIC_API_KEY"])
-        model_name = st.secrets.get("MODEL", "claude-3-5-sonnet-20240620")
+# ---------------------------------------------------------------- 로컬 채점 로직 (조건 확인)
+def get_local_feedback(answer, label):
+    ans = answer.replace(" ", "")
+    if len(ans) < 3:
+        return {"status": "error", "msg": "답안이 너무 짧습니다. 조건에 맞게 문장을 완성해 보세요."}
         
-        sys_prompt = "당신은 중학교 국어 선생님입니다. 학생의 서술형 답안을 채점하고 피드백을 제공합니다. 학생이 상처받지 않게 다정하고 격려하는 어투를 사용하세요."
-        user_prompt = f"""
-        [문항] {q_label}
-        [정답 기준] {rubric}
-        [학생 답안] {answer}
-        
-        위 기준을 바탕으로 학생 답안을 채점해주세요. 
-        1. 정답/부분점수/오답 여부를 먼저 명확히 밝혀주세요.
-        2. 잘한 점을 칭찬하고, 부족한 부분(조건 누락 등)이 있다면 어떻게 보완해야 하는지 2~3문장으로 구체적인 조언을 남겨주세요.
-        """
-        
-        response = client.messages.create(
-            model=model_name, max_tokens=400, system=sys_prompt,
-            messages=[{"role": "user", "content": user_prompt}]
-        )
-        return response.content[0].text
-    except Exception as e:
-        return f"AI 채점 중 오류가 발생했습니다: {e}"
+    if "관점" in label or "의도" in label:
+        if "때문" not in ans:
+            return {"status": "error", "msg": "조건 누락: '왜냐하면 ~ 때문이다'라는 형식을 포함하여 근거를 명확히 제시해 보세요."}
+        if "하려" not in ans and "본다" not in ans:
+            return {"status": "error", "msg": "조건 누락: 문장 틀('~로/으로 본다' 또는 '~하게 하려 한다')에 맞추어 서술해 보세요."}
+            
+    if "문구" in label or "이미지" in label:
+        if "보여" not in ans and "나타" not in ans:
+            return {"status": "error", "msg": "조건 누락: '( )을/를 보여 줌' 등의 형태로 재현의 효과를 명확하게 서술해 보세요."}
+            
+    return {"status": "success", "msg": "조건에 맞게 잘 작성했습니다! 훌륭합니다."}
 
 # ---------------------------------------------------------------- 이미지 렌더러
 def get_base64_image(file_name, label):
@@ -212,7 +197,7 @@ def get_base64_image(file_name, label):
         return f"<div style='background-color: #f8f9fa; padding: 20px; text-align: center; border-radius: 10px;'><strong style='color: #343a40;'>{label}</strong><br>이미지 로드 대기 중...</div>"
 
 # ---------------------------------------------------------------- 상단 디자인
-st.markdown("### 🕵️‍♂️ [국어] 서·논술형 답안 작성 연습")
+st.markdown("### 🔎 [국어] 서·논술형 답안 작성 연습")
 st.markdown("##### 작성한 답안을 입력한 뒤 문제의 조건에 맞게 작성하였는지 확인하세요.")
 
 completed = len(ss.graded)
@@ -220,17 +205,28 @@ st.progress(completed / 9.0)
 st.markdown(f"**이번 회차 내가 푼 문제 : {completed}/9**")
 st.write("")
 
+# ---------------------------------------------------------------- 구글 시트 연동
+def log_action_to_sheet(set_id, qkey, label, answer_text):
+    if "gcp_service_account" not in st.secrets or "SHEET_URL" not in st.secrets:
+        return
+    try:
+        import gspread
+        from google.oauth2.service_account import Credentials
+        info = dict(st.secrets["gcp_service_account"])
+        creds = Credentials.from_service_account_info(info, scopes=["https://www.googleapis.com/auth/spreadsheets"])
+        sh = gspread.authorize(creds).open_by_url(st.secrets["SHEET_URL"])
+        ws = sh.sheet1
+        ws.append_row([f"{dt.datetime.now():%Y-%m-%d %H:%M:%S}", f"[{set_id.upper()}] {qkey}", label, answer_text])
+    except Exception:
+        pass
+
 # ---------------------------------------------------------------- UI 컴포넌트
 def cond_box(lines, template_lines=None):
     body = "<br>".join(f"• {ln}" for ln in lines)
     temp_box = ""
     if template_lines:
         temp_body = "<br>".join(f"- {t}" for t in template_lines)
-        temp_box = f"""
-        <div style="background-color: #ffffff; border: 1px solid #ced4da; padding: 10px; margin-top: 10px; border-radius: 5px; color: #495057;">
-            {temp_body}
-        </div>
-        """
+        temp_box = f"<div style='background-color: #ffffff; border: 1px solid #ced4da; padding: 10px; margin-top: 10px; border-radius: 5px; color: #495057;'>{temp_body}</div>"
         
     st.markdown(f"""
     <div style="background-color: #f8f9fa; border-left: 4px solid #4a90e2; padding: 15px; margin-bottom: 20px; border-radius: 5px;">
@@ -250,31 +246,43 @@ def question_block(s, qkey, q_data):
         inputs[k_it] = val
 
     st.write("")
-    if st.button("🚀 제출하고 피드백 받기", key=f"btn-{k_q}", type="primary", use_container_width=True):
+    
+    # 버튼을 작게 우측 하단에 배치
+    col1, col2, col3 = st.columns([2, 1.5, 1])
+    with col3:
+        submit_btn = st.button("🚀 제출하고 피드백 받기", key=f"btn-{k_q}", type="primary", use_container_width=True)
+        
+    if submit_btn:
         if not ss.student.strip():
             st.error("좌측 사이드바에 학번과 이름을 먼저 입력해주세요!")
         elif all(v.strip() for v in inputs.values()):
-            with st.spinner("🤖 AI 선생님이 답안을 꼼꼼히 채점하고 있습니다..."):
-                for it in q_data["items"]:
-                    k_it = f"{k_q}-{it['id']}"
-                    ss.answers[k_it] = inputs[k_it]
-                    # AI 채점 실행
-                    fb = get_ai_feedback(it['label'], inputs[k_it], it['key']['ex'])
-                    ss.feedbacks[k_it] = fb
-                    
+            for it in q_data["items"]:
+                k_it = f"{k_q}-{it['id']}"
+                ss.answers[k_it] = inputs[k_it]
+                # 로컬 채점 진행
+                fb = get_local_feedback(inputs[k_it], it['label'])
+                ss.feedbacks[k_it] = fb
+                log_action_to_sheet(s['id'], qkey, it['label'], inputs[k_it])
             ss.graded.add(k_q)
-            st.success("✅ 채점 완료! 아래에서 피드백을 확인하세요.")
         else:
             st.warning("⚠️ 모든 빈칸에 내용을 입력하세요.")
 
     if k_q in ss.graded:
         for it in q_data["items"]:
             k_it = f"{k_q}-{it['id']}"
-            st.markdown(f"**[{it['label']}] AI 채점 결과**")
-            st.info(ss.feedbacks.get(k_it, "피드백을 불러올 수 없습니다."))
+            fb = ss.feedbacks[k_it]
+            st.markdown(f"**[{it['label']}] 채점 결과**")
+            
+            if fb["status"] == "success":
+                st.success(f"✅ {fb['msg']}")
+            else:
+                st.error(f"💡 아쉬운 부분이 있어요. 아래 안내를 참고해 보완해 보세요.\n\n{fb['msg']}")
+                
+            with st.expander("👀 모범 답안 보기"):
+                st.info(it['key']['ex'])
 
 # ---------------------------------------------------------------- 네비게이션
-tabs = st.tabs(["🕵️‍♂️ [실전 적용 1]", "🕵️‍♂️ [실전 적용 2]", "🕵️‍♂️ [실전 적용 3]", "📚 전체 복습"])
+tabs = st.tabs(["🔎 [실전 적용 1]", "🔎 [실전 적용 2]", "🔎 [실전 적용 3]", "📚 전체 복습"])
 
 for i, tab in enumerate(tabs[:3]):
     with tab:
@@ -291,8 +299,6 @@ for i, tab in enumerate(tabs[:3]):
             q = s["q1"]
             st.markdown("##### 1. 재현 방식")
             st.write("두 광고의 재현 방식을 표로 정리하였다. ㉠~㉡에 들어갈 내용을 <조건>에 맞게 쓰시오.")
-            
-            # 표 디자인 개선
             st.markdown(f"""
             <table style="width:100%; border-collapse: collapse; text-align: left; margin-bottom: 20px;">
               <tr style="background-color: #f1f3f5; border-bottom: 2px solid #dee2e6;">
@@ -312,7 +318,6 @@ for i, tab in enumerate(tabs[:3]):
               </tr>
             </table>
             """, unsafe_allow_html=True)
-            
             cond_box(
                 ["광고 문구·이미지와 그로 인한 효과를 한 문장으로 쓸 것.", "아래 문장 틀에 맞추어 쓸 것."],
                 ["( )을/를 ( )하여(만들어/넣어/불러), ( )을/를 보여 줌."]
@@ -357,7 +362,7 @@ for i, tab in enumerate(tabs[:3]):
 # ---------------------------------------------------------------- 복습 탭
 with tabs[3]:
     if not ss.student:
-        st.warning("왼쪽 사이드바에 학번과 이름을 입력하셔야 오답 노트를 확인할 수 있습니다.")
+        st.warning("왼쪽 사이드바에 학번과 이름을 입력하셔야 전체 복습 데이터를 확인할 수 있습니다.")
     elif not ss.graded:
         st.info("아직 채점을 완료한 문항이 없습니다. 문제를 풀고 제출해주세요.")
     else:
@@ -372,13 +377,16 @@ with tabs[3]:
                     for it in s[qkey]["items"]:
                         k_it = f"{k_q}-{it['id']}"
                         my_ans = ss.answers.get(k_it, "미작성")
-                        fb = ss.feedbacks.get(k_it, "피드백 없음")
+                        fb = ss.feedbacks.get(k_it, {"status": "error", "msg": "피드백 없음"})
                         
                         st.markdown(f"**[{it['label']}]**")
                         col1, col2 = st.columns(2)
                         with col1:
-                            st.success(f"**나의 답안:**\n\n{my_ans}")
+                            st.info(f"**나의 답안:**\n\n{my_ans}")
                         with col2:
-                            st.info(f"**AI 선생님 피드백:**\n\n{fb}")
+                            if fb["status"] == "success":
+                                st.success(f"**피드백:**\n\n{fb['msg']}")
+                            else:
+                                st.error(f"**피드백:**\n\n{fb['msg']}")
                     st.write("")
                     st.divider()
