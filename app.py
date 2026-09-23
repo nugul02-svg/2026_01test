@@ -13,13 +13,16 @@ SETS = [
         "q1": {
             "rowA": {"t": "'고개를 드는 것'을 '5초가 보이는 것'과 짝지어 위험을 알아챌 시간이 생긴다는 것을 보여 줌.", "i": "신호등을 넣어 학생이 보지 못하는 남은 시간을 보여 줌."},
             "items": [
-                {"id": "q1-1", "label": "(나) 문구 ( ㉠ )", "short": False, "key": {"ex": "'운전자는 당신이 자기를 봤다고 생각합니다'를 넣어, 운전자와 보행자의 서로 다른 인식 차이로 인한 위험성을 보여 줌."}},
-                {"id": "q1-2", "label": "(나) 이미지 ( ㉡ )", "short": False, "key": {"ex": "운전자의 시선에서 스마트폰을 보며 걷는 학생을 보여 주어, 운전자 입장에서 느끼는 상황의 아찔함과 위험성을 보여 줌."}}
+                {"id": "q1-1", "label": "(나) 문구 ( ㉠ )", "short": False, "key": {"ex": "* 재현의 효과를 쓴 경우: '운전자는 당신이 자기를 봤다고 생각합니다'를 넣어, 운전자와 보행자의 서로 다른 인식 차이로 인한 위험성을 보여 줌.\n* 수용자에게 미치는 효과를 쓴 경우: 운전자의 입장을 문구로 제시하여, 청소년 보행자가 스스로를 돌아보고 경각심을 가지게 함."}},
+                {"id": "q1-2", "label": "(나) 이미지 ( ㉡ )", "short": False, "key": {"ex": "* 재현의 효과를 쓴 경우: 운전자의 시선에서 스마트폰을 보며 걷는 학생을 보여 주어, 운전자 입장에서 느끼는 상황의 아찔함과 위험성을 보여 줌.\n* 수용자에게 미치는 효과를 쓴 경우: 교복 입은 학생을 이미지에 담아 청소년이 자기 이야기처럼 여길 수 있게 함."}}
             ]
         },
         "q2": {
             "items": [
-                {"id": "q2-1", "label": "제작자의 관점과 의도", "short": False, "key": {"ex": "관점: 광고는 스마트폰 보행을 생명을 위협하는 위험한 행동으로 본다. 왜냐하면 운전자 시점의 아찔한 횡단보도 이미지 때문이다.\n의도: 제작자는 광고를 본 사람이 보행 중 스마트폰을 보지 않게 하려 한다. 왜냐하면 사고가 날 수 있기 때문이다."}}
+                {"id": "q2-1", "label": "(가)의 관점", "short": False, "key": {"ex": "광고는 스마트폰 보행을 생명을 위협하는 위험한 행동으로 본다. 왜냐하면 운전자 시점의 아찔한 횡단보도 이미지 때문이다."}},
+                {"id": "q2-2", "label": "(가)의 의도", "short": False, "key": {"ex": "제작자는 광고를 본 사람이 보행 중 스마트폰을 보지 않게 하려 한다."}},
+                {"id": "q2-3", "label": "(나)의 관점", "short": False, "key": {"ex": "광고는 스마트폰 보행을 운전자와 보행자의 서로 다른 인식 차이로 인한 치명적인 위험으로 본다. 왜냐하면 '운전자는 당신이 자기를 봤다고 생각합니다'라는 문구 때문이다."}},
+                {"id": "q2-4", "label": "(나)의 의도", "short": False, "key": {"ex": "제작자는 광고를 본 사람이 보행 중 스마트폰을 보지 않게 하려 한다."}}
             ]
         },
         "q3": {
@@ -39,13 +42,16 @@ SETS = [
         "q1": {
             "rowA": {"t": "'한 숟갈'을 '300kg'과 나란히 놓아, 작아 보이는 양이 모이면 큰 양이 된다는 것을 보여 줌.", "i": "한 숟갈의 밥 옆에 같은 밥을 산처럼 쌓아, 남긴 양이 실제로 얼마나 큰지를 보여 줌."},
             "items": [
-                {"id": "q1-1", "label": "(나) 문구 ( ㉠ )", "short": False, "key": {"ex": "'이 밥을 만든 손을 기억해 주세요'를 넣어, 우리가 무심코 남기는 음식에 많은 사람의 노고가 담겨 있음을 보여 줌."}},
-                {"id": "q1-2", "label": "(나) 이미지 ( ㉡ )", "short": False, "key": {"ex": "농부, 조리사, 학생의 손을 나란히 배치하여, 밥 한 끼가 우리에게 오기까지의 과정과 감사의 필요성을 보여 줌."}}
+                {"id": "q1-1", "label": "(나) 문구 ( ㉠ )", "short": False, "key": {"ex": "* 재현의 효과를 쓴 경우: '이 밥을 만든 손을 기억해 주세요'를 넣어, 우리가 무심코 남기는 음식에 많은 사람의 노고가 담겨 있음을 보여 줌.\n* 수용자에게 미치는 효과를 쓴 경우: 농부와 조리사의 수고를 언급하여, 학생들 스스로 잔반을 남기지 않도록 행동 변화를 촉구함."}},
+                {"id": "q1-2", "label": "(나) 이미지 ( ㉡ )", "short": False, "key": {"ex": "* 재현의 효과를 쓴 경우: 농부, 조리사, 학생의 손을 나란히 배치하여, 밥 한 끼가 우리에게 오기까지의 과정을 보여 줌.\n* 수용자에게 미치는 효과를 쓴 경우: 거친 손과 부드러운 손을 대조적으로 보여주어, 버려지는 음식에 대한 죄책감과 감사함을 느끼게 함."}}
             ]
         },
         "q2": {
             "items": [
-                {"id": "q2-1", "label": "제작자의 관점과 의도", "short": False, "key": {"ex": "관점: 광고는 잔반을 수많은 사람의 노고와 정성을 버리는 행위로 본다. 왜냐하면 농부와 조리사의 거친 손 이미지 때문이다.\n의도: 제작자는 광고를 본 사람이 음식을 남기지 않고 다 먹게 하려 한다. 왜냐하면 누군가의 소중한 노력이기 때문이다."}}
+                {"id": "q2-1", "label": "(가)의 관점", "short": False, "key": {"ex": "광고는 잔반을 수많은 자원의 낭비로 본다. 왜냐하면 산처럼 쌓인 밥 이미지 때문이다."}},
+                {"id": "q2-2", "label": "(가)의 의도", "short": False, "key": {"ex": "제작자는 광고를 본 사람이 음식을 남기지 않고 다 먹게 하려 한다."}},
+                {"id": "q2-3", "label": "(나)의 관점", "short": False, "key": {"ex": "광고는 잔반을 수많은 사람의 노고와 정성을 버리는 행위로 본다. 왜냐하면 농부와 조리사의 거친 손 이미지 때문이다."}},
+                {"id": "q2-4", "label": "(나)의 의도", "short": False, "key": {"ex": "제작자는 광고를 본 사람이 음식을 남기지 않고 다 먹게 하려 한다."}}
             ]
         },
         "q3": {
@@ -65,13 +71,16 @@ SETS = [
         "q1": {
             "rowA": {"t": "'당신의 발소리'를 '천장을 흔드는 것'이라고 말하여, 내게는 작은 소리가 아래층에서는 집을 흔드는 큰 소리가 된다는 것을 보여 줌.", "i": "위층의 발자국을 아래층 학생의 머리 위 그림자로 만들어, 소리가 아래층 사람을 누르는 무게가 된다는 것을 보여 줌."},
             "items": [
-                {"id": "q1-1", "label": "(나) 문구 ( ㉠ )", "short": False, "key": {"ex": "'슬리퍼 한 켤레면 됩니다'라고 하여, 층간소음이라는 큰 문제가 슬리퍼를 신는 작은 실천으로 쉽게 해결될 수 있음을 보여 줌."}},
-                {"id": "q1-2", "label": "(나) 이미지 ( ㉡ )", "short": False, "key": {"ex": "푹신해 보이는 슬리퍼와 그 안으로 들어가는 발을 크게 배치하여, 층간소음을 줄이기 위한 구체적이고 즉각적인 행동을 보여 줌."}}
+                {"id": "q1-1", "label": "(나) 문구 ( ㉠ )", "short": False, "key": {"ex": "* 재현의 효과를 쓴 경우: '슬리퍼 한 켤레면 됩니다'라고 하여, 층간소음이라는 큰 문제가 슬리퍼를 신는 작은 실천으로 쉽게 해결될 수 있음을 보여 줌.\n* 수용자에게 미치는 효과를 쓴 경우: 쉬운 해결책을 직접적으로 제시하여, 이웃을 위해 즉시 슬리퍼를 신도록 실천을 유도함."}},
+                {"id": "q1-2", "label": "(나) 이미지 ( ㉡ )", "short": False, "key": {"ex": "* 재현의 효과를 쓴 경우: 푹신해 보이는 슬리퍼와 그 안으로 들어가는 발을 크게 배치하여, 층간소음을 줄이기 위한 구체적이고 즉각적인 행동을 보여 줌.\n* 수용자에게 미치는 효과를 쓴 경우: 따뜻하고 푹신한 이미지를 통해 층간소음 방지가 이웃을 향한 배려임을 느끼게 함."}}
             ]
         },
         "q2": {
             "items": [
-                {"id": "q2-1", "label": "제작자의 관점과 의도", "short": False, "key": {"ex": "관점: 광고는 층간소음을 이웃에게 고통을 주는 무거운 폭력으로 본다. 왜냐하면 학생을 짓누르는 거대한 발자국 그림자 이미지 때문이다.\n의도: 제작자는 광고를 본 사람이 이웃을 배려하여 실내에서 조용히 걷게 하려 한다. 왜냐하면 아래층에 큰 고통이 되기 때문이다."}}
+                {"id": "q2-1", "label": "(가)의 관점", "short": False, "key": {"ex": "광고는 층간소음을 이웃에게 고통을 주는 무거운 폭력으로 본다. 왜냐하면 학생을 짓누르는 거대한 발자국 그림자 이미지 때문이다."}},
+                {"id": "q2-2", "label": "(가)의 의도", "short": False, "key": {"ex": "제작자는 광고를 본 사람이 이웃을 배려하여 실내에서 조용히 걷게 하려 한다."}},
+                {"id": "q2-3", "label": "(나)의 관점", "short": False, "key": {"ex": "광고는 층간소음을 작은 실천으로 쉽게 해결할 수 있는 문제로 본다. 왜냐하면 푹신한 슬리퍼 이미지 때문이다."}},
+                {"id": "q2-4", "label": "(나)의 의도", "short": False, "key": {"ex": "제작자는 광고를 본 사람이 층간소음 방지를 위해 실내에서 슬리퍼를 신게 하려 한다."}}
             ]
         },
         "q3": {
@@ -95,12 +104,14 @@ st.set_page_config(page_title="서·논술형 답안 연습", page_icon="🔎", 
 # ---------------------------------------------------------------- 커스텀 CSS 디자인
 st.markdown("""
 <style>
-/* 탭 서체를 크고 진하게 */
+/* 앵커 링크(헤더 마우스 오버 시 나타나는 체인 아이콘) 숨기기 */
+a.header-anchor {
+    display: none !important;
+}
 .stTabs [data-baseweb="tab-list"] button [data-testid="stMarkdownContainer"] p {
     font-size: 1.3rem !important;
     font-weight: 800 !important;
 }
-/* 문항 선택 서브 탭을 폴더 모양으로 */
 div[role="radiogroup"] {
     display: flex; flex-direction: row; gap: 5px; margin-bottom: 20px;
 }
@@ -112,7 +123,6 @@ div[role="radiogroup"] > label {
 div[role="radiogroup"] > label[data-checked="true"] {
     background-color: #ffffff; border-top: 3px solid #2b6cb0; color: #2b6cb0;
 }
-/* 입력창 하단의 불필요한 도움말(Press Enter...) 숨기기 */
 div[data-testid="InputInstructions"] {
     display: none !important;
 }
@@ -135,8 +145,6 @@ with st.sidebar:
     st.divider()
     
     st.markdown("### 💡 학습 도우미")
-    
-    # 1) 시험 범위
     st.markdown("""
     <div style="background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 5px; padding: 15px; margin-bottom: 15px;">
         <strong style="color: #495057;">1) 시험 범위</strong><br>
@@ -145,7 +153,6 @@ with st.sidebar:
     </div>
     """, unsafe_allow_html=True)
     
-    # 2) 반드시 알아야 할 개념
     st.markdown("""
     <div style="background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 5px; padding: 15px;">
         <strong style="color: #495057;">2) 반드시 알아야 할 개념</strong><br><br>
@@ -163,33 +170,46 @@ with st.sidebar:
     </div>
     """, unsafe_allow_html=True)
 
-# ---------------------------------------------------------------- 로컬 채점 로직 (조건 확인)
+# ---------------------------------------------------------------- 로컬 채점 로직 (조건 확인 고도화)
 def get_local_feedback(answer, label):
     ans = answer.replace(" ", "")
     if len(ans) < 3:
         return {"status": "error", "msg": "답안이 너무 짧습니다. 조건에 맞게 문장을 완성해 보세요."}
         
-    if "관점" in label or "의도" in label:
+    if "관점" in label:
         if "때문" not in ans:
             return {"status": "error", "msg": "조건 누락: '왜냐하면 ~ 때문이다'라는 형식을 포함하여 근거를 명확히 제시해 보세요."}
-        if "하려" not in ans and "본다" not in ans:
-            return {"status": "error", "msg": "조건 누락: 문장 틀('~로/으로 본다' 또는 '~하게 하려 한다')에 맞추어 서술해 보세요."}
-            
-    if "문구" in label or "이미지" in label:
-        if "보여" not in ans and "나타" not in ans:
-            return {"status": "error", "msg": "조건 누락: '( )을/를 보여 줌' 등의 형태로 재현의 효과를 명확하게 서술해 보세요."}
-            
-    return {"status": "success", "msg": "조건에 맞게 잘 작성했습니다! 훌륭합니다."}
+        if "본다" not in ans:
+            return {"status": "error", "msg": "조건 누락: '( )을/를 ( )로/으로 본다'라는 문장 틀에 맞추어 서술해 보세요."}
+        return {"status": "success", "msg": "조건에 맞게 잘 작성했습니다! '~로 본다'는 문장 틀과 '왜냐하면 ~ 때문이다'라는 근거 제시 조건을 훌륭하게 충족했습니다."}
 
-# ---------------------------------------------------------------- 이미지 렌더러
+    if "의도" in label and "원본 광고" not in label:
+        if "하려" not in ans:
+            return {"status": "error", "msg": "조건 누락: '( )하게 하려 한다'라는 문장 틀에 맞추어 서술해 보세요."}
+        return {"status": "success", "msg": "조건에 맞게 잘 작성했습니다! '~하게 하려 한다'는 문장 틀을 사용하여 제작자의 의도를 명확히 파악했습니다."}
+
+    if "원본 광고의 제작자 의도" in label:
+        if "때문" not in ans:
+            return {"status": "error", "msg": "조건 누락: '왜냐하면 ~ 때문이다'라는 형식을 포함하여 근거를 명확히 제시해 보세요."}
+        if "하려" not in ans:
+            return {"status": "error", "msg": "조건 누락: '( )하게 하려 한다'라는 문장 틀에 맞추어 서술해 보세요."}
+        return {"status": "success", "msg": "조건에 맞게 잘 작성했습니다! 문장 틀과 근거 제시 조건을 훌륭하게 충족했습니다."}
+
+    if "문구" in label or "이미지" in label:
+        return {"status": "success", "msg": "광고의 문구 및 이미지를 잘 짚어내고 그 효과를 적절히 분석했습니다! 훌륭합니다."}
+            
+    return {"status": "success", "msg": "조건에 맞게 잘 작성했습니다!"}
+
+# ---------------------------------------------------------------- 이미지 렌더러 (크기 150%로 확장)
 def get_base64_image(file_name, label):
     img_path = IMG_DIR / file_name
     try:
         with open(img_path, "rb") as f:
             encoded = base64.b64encode(f.read()).decode("utf-8")
+        # max-height를 기존 250px에서 375px로 150% 확대
         return f"""
         <div style="background-color: #f8f9fa; padding: 20px; border-radius: 10px; text-align: center; height: 100%; border: 1px solid #e9ecef;">
-            <img src="data:image/png;base64,{encoded}" style="max-height: 250px; width: auto; max-width: 100%; border-radius: 5px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 15px;">
+            <img src="data:image/png;base64,{encoded}" style="max-height: 375px; width: auto; max-width: 100%; border-radius: 5px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 15px;">
             <strong style="display: block; font-size: 1.1em; color: #343a40;">{label}</strong>
         </div>
         """
@@ -216,7 +236,7 @@ def log_action_to_sheet(set_id, qkey, label, answer_text):
         creds = Credentials.from_service_account_info(info, scopes=["https://www.googleapis.com/auth/spreadsheets"])
         sh = gspread.authorize(creds).open_by_url(st.secrets["SHEET_URL"])
         ws = sh.sheet1
-        ws.append_row([f"{dt.datetime.now():%Y-%m-%d %H:%M:%S}", f"[{set_id.upper()}] {qkey}", label, answer_text])
+        ws.append_row([f"{dt.datetime.now():%Y-%m-%d %H:%M:%S}", ss.student, f"[{set_id.upper()}] {qkey}", label, answer_text])
     except Exception:
         pass
 
@@ -247,7 +267,6 @@ def question_block(s, qkey, q_data):
 
     st.write("")
     
-    # 버튼을 작게 우측 하단에 배치
     col1, col2, col3 = st.columns([2, 1.5, 1])
     with col3:
         submit_btn = st.button("🚀 제출하고 피드백 받기", key=f"btn-{k_q}", type="primary", use_container_width=True)
@@ -259,7 +278,6 @@ def question_block(s, qkey, q_data):
             for it in q_data["items"]:
                 k_it = f"{k_q}-{it['id']}"
                 ss.answers[k_it] = inputs[k_it]
-                # 로컬 채점 진행
                 fb = get_local_feedback(inputs[k_it], it['label'])
                 ss.feedbacks[k_it] = fb
                 log_action_to_sheet(s['id'], qkey, it['label'], inputs[k_it])
@@ -282,7 +300,7 @@ def question_block(s, qkey, q_data):
                 st.info(it['key']['ex'])
 
 # ---------------------------------------------------------------- 네비게이션
-tabs = st.tabs(["🔎 [실전 적용 1]", "🔎 [실전 적용 2]", "🔎 [실전 적용 3]", "📚 전체 복습"])
+tabs = st.tabs(["🔎 [실전 적용 1]", "🔎 [실전 적용 2]", "🔎 [실전 적용 3]", "📚 학습 기록"])
 
 for i, tab in enumerate(tabs[:3]):
     with tab:
@@ -298,7 +316,7 @@ for i, tab in enumerate(tabs[:3]):
         if q_choice == "1. 재현 방식":
             q = s["q1"]
             st.markdown("##### 1. 재현 방식")
-            st.write("두 광고의 재현 방식을 표로 정리하였다. ㉠~㉡에 들어갈 내용을 <조건>에 맞게 쓰시오.")
+            st.write("두 광고의 재현 방식을 표로 정리하였다. ㉠~㉡에 들어갈 내용을 쓰시오.")
             st.markdown(f"""
             <table style="width:100%; border-collapse: collapse; text-align: left; margin-bottom: 20px;">
               <tr style="background-color: #f1f3f5; border-bottom: 2px solid #dee2e6;">
@@ -319,8 +337,7 @@ for i, tab in enumerate(tabs[:3]):
             </table>
             """, unsafe_allow_html=True)
             cond_box(
-                ["광고 문구·이미지와 그로 인한 효과를 한 문장으로 쓸 것.", "아래 문장 틀에 맞추어 쓸 것."],
-                ["( )을/를 ( )하여(만들어/넣어/불러), ( )을/를 보여 줌."]
+                ["광고 문구·이미지와 그 효과를 서술할 것 (표현상의 효과, 수용자에게 미치는 효과 모두 인정)."]
             )
             question_block(s, "q1", q)
             
@@ -329,8 +346,8 @@ for i, tab in enumerate(tabs[:3]):
             st.markdown("##### 2. 관점과 의도")
             st.write("두 광고에 담긴 제작자의 관점과 의도를 <조건>에 맞게 서술하시오.")
             cond_box(
-                ["광고에 재현된 내용에서 찾은 근거를 포함하여 기술할 것.", "아래 문장 틀에 맞추어 쓸 것."],
-                ["관점: 광고는 ( )을/를 ( )로/으로 본다. 왜냐하면 ( ) 때문이다.", "의도: 제작자는 광고를 본 사람이 ( )하게 하려 한다. 왜냐하면 ( ) 때문이다."]
+                ["광고에 재현된 내용에서 찾은 근거를 포함하여 기술할 것.", "아래 문장 틀에 맞추어 쓸 것. (단, 의도를 작성할 때는 이유를 쓰지 않아도 됨.)"],
+                ["관점: 광고는 ( )을/를 ( )로/으로 본다. 왜냐하면 ( ) 때문이다.", "의도: 제작자는 광고를 본 사람이 ( )하게 하려 한다."]
             )
             question_block(s, "q2", q)
             
@@ -359,14 +376,15 @@ for i, tab in enumerate(tabs[:3]):
             )
             question_block(s, "q3", q)
 
-# ---------------------------------------------------------------- 복습 탭
+# ---------------------------------------------------------------- 학습 기록 탭
 with tabs[3]:
     if not ss.student:
-        st.warning("왼쪽 사이드바에 학번과 이름을 입력하셔야 전체 복습 데이터를 확인할 수 있습니다.")
+        st.warning("왼쪽 사이드바에 학번과 이름을 입력하셔야 전체 학습 기록을 확인할 수 있습니다.")
     elif not ss.graded:
         st.info("아직 채점을 완료한 문항이 없습니다. 문제를 풀고 제출해주세요.")
     else:
-        st.markdown(f"### 📝 {ss.student} 학생의 문항별 오답노트")
+        st.markdown(f"### 📝 {ss.student} 학생의 학습 기록")
+        st.caption("현재 세션에 누적된 응답 결과와 채점 정보를 확인합니다.")
         st.divider()
         
         for s in SETS:
