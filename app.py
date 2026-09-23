@@ -1,49 +1,38 @@
-# -*- coding: utf-8 -*-
-"""서논술형 답안 연습 — 광고·홍보물의 재현과 관점 (Streamlit)"""
-
-import json
-import re
-import datetime as dt
-from pathlib import Path
-
-import streamlit as st
-
-# 데이터
 SETS = [
     {
         "id": "set1",
-        "adA": "ad_a.png",
-        "adB": "ad_b.png",
-        "adC": "ad_c.png",
+        "adA": "set1_a.png",
+        "adB": "set1_b.png",
+        "adC": "set1_c.png",
         "adText": {
-            "A": "(가) 광고: 신선한 채소를 강조하며 '자연을 베어 물다'라는 문구가 적혀 있다.",
-            "B": "(나) 광고: 바쁜 직장인이 빠르게 식사하는 모습과 '1분 완성, 당신의 에너지'라는 문구가 있다.",
-            "C": "공익 광고: 일회용 컵이 산처럼 쌓여 있는 이미지."
+            "A": "(가) 보행 중 스마트폰 사용 위험 경고 광고: '고개를 들면 5초가 보입니다' 문구와 횡단보도에서 스마트폰을 보는 학생 이미지.",
+            "B": "(나) 보행 중 스마트폰 사용 위험 경고 광고: '운전자는 당신이 자기를 봤다고 생각합니다' 문구와 운전자 시점에서 스마트폰을 보며 길을 건너는 학생 이미지.",
+            "C": "스마트워치 상업 광고: '1분도 놓치지 않는 하루' 문구와 시계를 차고 바쁘게 뛰어가는 학생 이미지."
         },
         "q1": {
             "rowA": {
-                "t": "자연을 베어 물다",
-                "i": "신선한 채소와 두툼한 패티"
+                "t": "'고개를 드는 것'을 '5초가 보이는 것'과 짝지어, 화면에서 눈을 떼면 위험을 알아챌 시간이 생긴다는 것을 보여 줌.",
+                "i": "횡단보도 앞에서 고개를 숙인 학생 옆에 '5'가 켜진 신호등을 넣어, 학생이 보지 못하는 남은 시간이 얼마인지를 보여 줌."
             },
             "items": [
                 {
                     "id": "q1-1",
-                    "label": "( ㉠ ) 문구",
-                    "short": True,
+                    "label": "(나) 문구 ( ㉠ )",
+                    "short": False,
                     "key": {
-                        "ex": "1분 완성, 당신의 에너지",
-                        "ok": ["당신의 에너지", "1분 완성"],
-                        "no": ["빠르게 먹다", "바쁜 직장인"]
+                        "ex": "'운전자는 당신이 자기를 봤다고 생각합니다'를 넣어, 운전자와 보행자의 서로 다른 생각으로 인해 사고가 발생할 수 있음을 보여 줌.",
+                        "ok": ["인식의 차이로 인한 위험성을 강조함", "운전자의 착각을 보여주어 경각심을 줌"],
+                        "no": ["운전자의 기분을 나타냄", "사고가 났음을 알려줌"]
                     }
                 },
                 {
                     "id": "q1-2",
-                    "label": "( ㉡ ) 이미지",
+                    "label": "(나) 이미지 ( ㉡ )",
                     "short": False,
                     "key": {
-                        "ex": "바쁘게 먹고 가는 모습으로, 제품의 간편함과 신속함을 강조한다.",
-                        "ok": ["바쁜 사람의 모습으로 신속함을 보여준다.", "빠르게 먹는 모습으로 간편함을 나타낸다."],
-                        "no": ["맛있게 먹는다.", "채소가 신선하다."]
+                        "ex": "운전자의 시선에서 스마트폰을 보며 걷는 학생을 보여 주어, 운전자 입장에서 느끼는 상황의 아찔함과 위험성을 보여 줌.",
+                        "ok": ["운전자 시점의 시각적 위험성을 보여줌", "스마트폰을 보는 것이 얼마나 위험하게 보이는지 나타냄"],
+                        "no": ["학생이 걷고 있다", "차 안에서 밖을 본다"]
                     }
                 }
             ]
@@ -55,27 +44,27 @@ SETS = [
                     "label": "제작자의 관점과 의도",
                     "short": False,
                     "key": {
-                        "ex": "관점은 '햄버거'를 '빠른 에너지 충전 수단'으로 본다. 그렇게 생각한 이유는 '바쁜 직장인이 빠르게 식사하는 모습' 때문이다. 의도는 제작자는 광고를 본 사람이 '제품을 구매'하게 하려 한다.",
-                        "ok": ["관점은 햄버거를 간편한 식사로 본다.", "의도는 햄버거를 사 먹게 하려 한다."],
-                        "no": ["관점은 햄버거를 자연으로 본다."]
+                        "ex": "관점은 '스마트폰 보행'을 '생명을 위협하는 위험한 행동'으로 본다. 이유는 '운전자 시점의 아찔한 횡단보도 이미지' 때문이다. 의도는 제작자는 광고를 본 사람이 '보행 중 스마트폰을 보지 않게' 하려 한다.",
+                        "ok": ["관점은 스마트폰 보행을 위험으로 본다.", "의도는 보행 중 스마트폰 사용을 멈추게 하려 한다."],
+                        "no": ["관점은 스마트폰을 나쁜 기계로 본다.", "의도는 스마트폰을 버리게 하려 한다."]
                     }
                 }
             ]
         },
         "q3": {
-            "buy": "광고가 대상의 단면만 보여주는 것은 아닌지 생각하며 비판적으로 읽어야 해.",
-            "think1": "이 광고는 환경 오염의 심각성을 보여주고 있어.",
-            "think2": "하지만 일상적인 실천 방안이나 대안은 부족해.",
-            "obj": "일회용 컵",
+            "buy": "새 시계를 사야 하는데. 이 광고를 살펴볼까?",
+            "think1": "뛰어가는 학생과 시계 화면의 알림들이 그려진 이미지와 '1분도 놓치지 않는 하루'라는 문구를 종합해 보면 제작자는 시간을 ( ㉠ )로/으로 보는 관점을 지닌 것 같아.",
+            "think2": "하지만 시간이 정말 그렇기만 한 것인가? 수정된 이미지는 벤치에 앉아 쉬는 학생의 손목에서 시계 화면이 '쉬는 시간 15분'이라고 알려주는 모습으로 바꾸겠어. 이렇게 바꾸면 관점이 시간을 ( ㉡ )로/으로 보는 것으로 바뀌지.",
+            "obj": "시간",
             "items": [
                 {
                     "id": "q3-1",
                     "label": "㉠",
                     "short": True,
                     "key": {
-                        "ex": "환경 오염의 원인",
-                        "ok": ["쓰레기 문제", "자연 훼손"],
-                        "no": ["편리한 도구"]
+                        "ex": "빈틈없이 관리하고 쪼개어 써야 할 대상 (또는 효율성)",
+                        "ok": ["아껴 써야 하는 것", "효율성", "통제해야 할 대상", "바쁘게 써야 하는 것"],
+                        "no": ["시계", "하루", "물건"]
                     }
                 },
                 {
@@ -83,334 +72,204 @@ SETS = [
                     "label": "㉡",
                     "short": True,
                     "key": {
-                        "ex": "해결해야 할 문제",
-                        "ok": ["심각한 상황"],
-                        "no": ["일상적인 것"]
+                        "ex": "휴식을 취하며 여유를 누릴 수 있는 것 (또는 여유)",
+                        "ok": ["여유", "쉬는 것", "편안함", "재충전의 시간"],
+                        "no": ["스마트워치", "벤치"]
                     }
                 },
                 {
                     "id": "q3-3",
-                    "label": "(2) 제작자의 의도",
+                    "label": "(2) 원본 광고의 제작자 의도",
                     "short": False,
                     "key": {
-                        "ex": "광고를 본 사람이 '일회용 컵 사용을 줄이도록' 하려 한다. 그렇게 생각한 이유는 '일회용 컵이 산처럼 쌓인 이미지' 때문이다.",
-                        "ok": ["환경을 보호하게 하려 한다.", "쓰레기 산 이미지를 통해 경각심을 주려 한다."],
-                        "no": ["일회용 컵을 쓰게 하려 한다."]
+                        "ex": "의도는 광고를 본 사람이 '스마트워치를 구매하여 시간을 철저하게 관리하게' 하려 한다. 이유는 '뛰어가는 학생과 1분도 놓치지 않겠다는 문구' 때문이다.",
+                        "ok": ["시계를 사서 바쁘게 살게 하려 한다.", "스마트워치로 시간을 관리하게 하려 한다."],
+                        "no": ["쉬게 하려 한다.", "시간을 낭비하지 말라고 경고하려 한다."]
+                    }
+                }
+            ]
+        }
+    },
+    {
+        "id": "set2",
+        "adA": "set2_a.png",
+        "adB": "set2_b.png",
+        "adC": "set2_c.png",
+        "adText": {
+            "A": "(가) 잔반 줄이기 광고: 식판에 '남긴 밥 한 숟갈'과 '하루 300kg'의 밥 산 이미지.",
+            "B": "(나) 잔반 줄이기 광고: '이 밥을 만든 손을 기억해 주세요' 문구와 농부, 조리사, 학생의 손 이미지.",
+            "C": "운동화 상업 광고: '신는 순간, 시선이 달라집니다' 문구와 운동화를 신은 학생을 우러러보는 주변 학생들 이미지."
+        },
+        "q1": {
+            "rowA": {
+                "t": "'한 숟갈'을 '300kg'과 나란히 놓아, 작아 보이는 양이 모이면 큰 양이 된다는 것을 보여 줌.",
+                "i": "한 숟갈의 밥 옆에 같은 밥을 산처럼 쌓아, 남긴 양이 실제로 얼마나 큰지를 보여 줌."
+            },
+            "items": [
+                {
+                    "id": "q1-1",
+                    "label": "(나) 문구 ( ㉠ )",
+                    "short": False,
+                    "key": {
+                        "ex": "'이 밥을 만든 손을 기억해 주세요'를 넣어, 우리가 무심코 남기는 음식에 많은 사람의 노고가 담겨 있음을 보여 줌.",
+                        "ok": ["음식에 담긴 정성과 노력을 상기시킨다", "만든 사람의 노고를 생각하게 한다"],
+                        "no": ["손을 씻으라는 뜻이다", "손을 보여준다"]
+                    }
+                },
+                {
+                    "id": "q1-2",
+                    "label": "(나) 이미지 ( ㉡ )",
+                    "short": False,
+                    "key": {
+                        "ex": "농부의 손, 조리사의 손, 학생의 손을 나란히 배치하여, 밥 한 끼가 우리에게 오기까지의 과정과 감사의 필요성을 보여 줌.",
+                        "ok": ["여러 사람의 손을 통해 밥이 만들어지는 과정을 보여준다", "협력과 노력을 시각적으로 나타낸다"],
+                        "no": ["손바닥이 더럽다", "밥을 먹는 모습이다"]
+                    }
+                }
+            ]
+        },
+        "q2": {
+            "items": [
+                {
+                    "id": "q2-1",
+                    "label": "제작자의 관점과 의도",
+                    "short": False,
+                    "key": {
+                        "ex": "관점은 '잔반'을 '수많은 사람의 노고와 정성을 버리는 행위'로 본다. 이유는 '농부와 조리사의 거친 손 이미지' 때문이다. 의도는 제작자는 광고를 본 사람이 '음식을 남기지 않고 다 먹게' 하려 한다.",
+                        "ok": ["관점은 잔반을 낭비로 본다.", "의도는 급식을 남기지 않게 하려 한다."],
+                        "no": ["관점은 밥을 농부로 본다.", "의도는 농사를 짓게 하려 한다."]
+                    }
+                }
+            ]
+        },
+        "q3": {
+            "buy": "운동화를 새로 사야 하는데, 이 광고를 살펴볼까?",
+            "think1": "운동화를 크게 보여 주고 다른 학생들이 올려다보는 이미지와 '신는 순간, 시선이 달라집니다'라는 문구를 종합해 보면 제작자는 운동화를 ( ㉠ )로/으로 보는 관점을 지닌 것 같아.",
+            "think2": "하지만 나라면 수정된 이미지는 공을 쫓아 뛰는 발과 함께 뛰는 주변 학생들 모습으로, 문구는 '신는 순간, 발이 가벼워집니다'로 바꾸겠어. 이러면 관점이 운동화를 ( ㉡ )로/으로 보는 것으로 바뀌지.",
+            "obj": "운동화",
+            "items": [
+                {
+                    "id": "q3-1",
+                    "label": "㉠",
+                    "short": True,
+                    "key": {
+                        "ex": "타인의 시선을 끄는 과시용 도구 (또는 남에게 보여주기 위한 것)",
+                        "ok": ["과시 수단", "신분 상승의 도구", "멋을 내는 용도", "시선을 끄는 것"],
+                        "no": ["신발", "학생", "편안함"]
+                    }
+                },
+                {
+                    "id": "q3-2",
+                    "label": "㉡",
+                    "short": True,
+                    "key": {
+                        "ex": "발을 편안하게 보호하고 활동을 돕는 실용적 도구 (또는 편안함)",
+                        "ok": ["실용적인 물건", "편안한 것", "활동을 돕는 도구", "기능적인 물건"],
+                        "no": ["멋진 신발", "축구공"]
+                    }
+                },
+                {
+                    "id": "q3-3",
+                    "label": "(2) 원본 광고의 제작자 의도",
+                    "short": False,
+                    "key": {
+                        "ex": "의도는 광고를 본 사람이 '남들의 시선을 끌기 위해 이 운동화를 구매하게' 하려 한다. 이유는 '주변 학생들이 부러워하며 올려다보는 이미지' 때문이다.",
+                        "ok": ["운동화를 사서 남들에게 뽐내게 하려 한다.", "멋져 보이고 싶어서 신발을 사게 하려 한다."],
+                        "no": ["발을 편하게 하려 한다.", "같이 축구를 하게 하려 한다."]
+                    }
+                }
+            ]
+        }
+    },
+    {
+        "id": "set3",
+        "adA": "set3_a.png",
+        "adB": "set3_b.png",
+        "adC": "set3_c.png",
+        "adText": {
+            "A": "(가) 층간소음 방지 광고: 윗층 아이가 뛰는 모습과 아래층 학생을 짓누르는 거대한 발자국 그림자 이미지.",
+            "B": "(나) 층간소음 방지 광고: '슬리퍼 한 켤레면 됩니다' 문구와 실내용 슬리퍼를 신으려는 발 이미지.",
+            "C": "무선 이어폰 상업 광고: '세상을 끄고, 나만 남기다' 문구와 복잡한 지하철 안에서 혼자 평온하게 눈을 감고 있는 학생 이미지."
+        },
+        "q1": {
+            "rowA": {
+                "t": "'당신의 발소리'를 '천장을 흔드는 것'이라고 말하여, 내게는 작은 소리가 아래층에서는 집을 흔드는 큰 소리가 된다는 것을 보여 줌.",
+                "i": "위층의 발자국을 아래층 학생의 머리 위 그림자로 만들어, 소리가 아래층 사람을 누르는 무게가 된다는 것을 보여 줌."
+            },
+            "items": [
+                {
+                    "id": "q1-1",
+                    "label": "(나) 문구 ( ㉠ )",
+                    "short": False,
+                    "key": {
+                        "ex": "'슬리퍼 한 켤레면 됩니다'라고 하여, 층간소음이라는 큰 문제가 슬리퍼를 신는 작은 실천으로 쉽게 해결될 수 있음을 보여 줌.",
+                        "ok": ["작은 배려와 실천으로 문제를 해결할 수 있음을 강조한다", "해결책이 아주 간단함을 보여준다"],
+                        "no": ["슬리퍼를 사라고 한다", "발이 시렵다"]
+                    }
+                },
+                {
+                    "id": "q1-2",
+                    "label": "(나) 이미지 ( ㉡ )",
+                    "short": False,
+                    "key": {
+                        "ex": "푹신해 보이는 슬리퍼와 그 안으로 들어가는 발을 크게 배치하여, 층간소음을 줄이기 위한 구체적이고 즉각적인 행동을 보여 줌.",
+                        "ok": ["슬리퍼를 신는 행동으로 배려를 시각화했다", "구체적인 실천 방안을 제시한다"],
+                        "no": ["발 모양을 보여준다", "집 안 풍경이다"]
+                    }
+                }
+            ]
+        },
+        "q2": {
+            "items": [
+                {
+                    "id": "q2-1",
+                    "label": "제작자의 관점과 의도",
+                    "short": False,
+                    "key": {
+                        "ex": "관점은 '층간소음'을 '이웃에게 고통을 주는 무거운 폭력'으로 본다. 이유는 '학생을 짓누르는 거대한 발자국 그림자 이미지' 때문이다. 의도는 제작자는 광고를 본 사람이 '이웃을 배려하여 실내에서 조용히 걷게' 하려 한다.",
+                        "ok": ["관점은 층간소음을 피해를 주는 고통으로 본다.", "의도는 집 안에서 쿵쿵대며 걷지 않게 하려 한다."],
+                        "no": ["관점은 층간소음을 놀이로 본다.", "의도는 위층에 항의하게 하려 한다."]
+                    }
+                }
+            ]
+        },
+        "q3": {
+            "buy": "이어폰을 사야 하는데, 이 광고를 살펴볼까?",
+            "think1": "주변을 흐리게 하고 혼자 눈을 감은 학생을 그린 이미지와 '세상을 끄고, 나만 남기다'라는 문구를 종합해 보면 제작자는 이어폰을 ( ㉠ )로/으로 보는 관점을 지닌 것 같아.",
+            "think2": "하지만 나라면 두 학생이 이어폰을 한 쪽씩 나눠 끼고 같이 웃는 모습으로, 문구는 '같은 노래, 같은 순간'으로 바꾸겠어. 이러면 관점이 이어폰을 ( ㉡ )로/으로 보는 것으로 바뀌지.",
+            "obj": "이어폰",
+            "items": [
+                {
+                    "id": "q3-1",
+                    "label": "㉠",
+                    "short": True,
+                    "key": {
+                        "ex": "외부와 단절시키고 혼자만의 세계로 도피하게 하는 수단 (또는 단절)",
+                        "ok": ["단절", "혼자만의 도구", "세상을 차단하는 기계", "고립되는 수단"],
+                        "no": ["음악 듣는 기계", "이어폰", "지하철"]
+                    }
+                },
+                {
+                    "id": "q3-2",
+                    "label": "㉡",
+                    "short": True,
+                    "key": {
+                        "ex": "타인과 감정을 공유하고 연결해 주는 매개체 (또는 소통과 연결)",
+                        "ok": ["소통의 도구", "연결고리", "함께 즐기는 수단", "공감하는 매개체"],
+                        "no": ["친구", "노래방"]
+                    }
+                },
+                {
+                    "id": "q3-3",
+                    "label": "(2) 원본 광고의 제작자 의도",
+                    "short": False,
+                    "key": {
+                        "ex": "의도는 광고를 본 사람이 '주변 소음을 차단하고 혼자만의 시간을 갖기 위해 이어폰을 구매하게' 하려 한다. 이유는 '배경을 흐리게 처리하고 주인공만 평온하게 강조한 이미지' 때문이다.",
+                        "ok": ["노이즈 캔슬링 이어폰을 사서 혼자 음악을 듣게 하려 한다.", "복잡한 곳에서 이어폰을 쓰게 하려 한다."],
+                        "no": ["친구와 음악을 듣게 하려 한다.", "지하철을 타게 하려 한다."]
                     }
                 }
             ]
         }
     }
 ]
-
-HERE = Path(__file__).parent
-IMG_DIR = HERE / "images"
-
-st.set_page_config(page_title="서논술형 답안 연습", page_icon="✍️", layout="centered")
-
-# ---------------------------------------------------------------- 페이지 목록
-PAGES = []
-for si, s in enumerate(SETS, 1):
-    for qi, qk in enumerate(["q1", "q2", "q3"], 1):
-        PAGES.append({"id": f"{s['id']}-{qk}", "set": s, "qkey": qk, "tab": f"{si}-{qi}", "name": f"{si}번 세트 – 서·논술형 {qi}"})
-PAGES.append({"id": "result", "tab": "결과", "name": "결과 정리"})
-PAGE_IDS = [p["id"] for p in PAGES]
-
-ss = st.session_state
-ss.setdefault("page", PAGE_IDS[0])
-ss.setdefault("answers", {})
-ss.setdefault("verdicts", {})
-ss.setdefault("graded", set())
-ss.setdefault("student", "")
-
-def akey(set_id, item_id):
-    return f"{set_id}-{item_id}"
-
-# ---------------------------------------------------------------- 채점
-GRADE_RULES = (
-    "[판정 원칙]\n"
-    "1. 표현이 예시 답안과 달라도 인정 기준의 뜻을 담고 있으면 '정'. 맞춤법·문장 다듬기는 판정에 넣지 않는다.\n"
-    "2. 재현 방법을 명시하지 않아도 그 문구·이미지가 드러내는 광고의 '뜻'이 있으면 '정'. 감상만 있으면 '오'.\n"
-    "3. 근거(이유)는 구체적이어야 하며 효과가 나타나야 한다. 인용만 있고 효과가 없으면 '오'.\n"
-    "4. 점수나 부분점수를 절대 언급하지 않는다.\n"
-    "5. feedback은 한 문장으로 친절하게 작성한다. '오'일 때는 정답을 그대로 알려주지 않는다.\n"
-    "6. 답이 비어 있거나 무의미하면 '오'로 하고 feedback에 답을 써달라고 한다."
-)
-
-def build_prompt(s, qkey, answers):
-    q = s[qkey]
-    if qkey == "q1":
-        qdesc = (
-            "[문항] 서·논술형 1. (나) 광고의 문구(㉠)와 이미지(㉡)에 대해 그로 인한 효과를 쓴다.\n"
-            f"참고(가): 문구: {q['rowA']['t']} / 이미지: {q['rowA']['i']}"
-        )
-        ad = s["adText"]["A"] + "\n" + s["adText"]["B"]
-    elif qkey == "q2":
-        qdesc = (
-            "[문항] 서·논술형 2. 관점과 의도 서술.\n"
-            "틀: 관점은 '( )을/를 ( )로/으로 본다. 이유는 ( ) 때문이다.', 의도는 '사람이 ( )하게 하려 한다.'"
-        )
-        ad = s["adText"]["A"] + "\n" + s["adText"]["B"]
-    else:
-        qdesc = (
-            f"[문항] 서·논술형 3. ㉠·㉡에는 광고 속 {q['obj']}을/를 무엇으로 보는지 쓴다.\n"
-            "(2)는 수정 전 의도를 '사람이 ( )하게 하려 한다. 이유는 ( ) 때문이다.'에 맞춰 쓴다."
-        )
-        ad = s["adText"]["C"]
-        
-    keys = "\n".join(
-        f"- {it['id']} ({it['label']})\n  예시: {it['key']['ex']}\n  인정: {' / '.join(it['key']['ok'])}\n  불인정: {' / '.join(it['key']['no'])}"
-        for it in q["items"]
-    )
-    ans = "\n".join(f"- {it['id']}: {json.dumps(answers[it['id']], ensure_ascii=False)}" for it in q["items"])
-    
-    return (
-        f"중2 국어 교사로서 아래 기준을 읽고 '정' 또는 '오'로 판정하세요.\n\n"
-        f"[광고 설명]\n{ad}\n\n{qdesc}\n\n[인정답안 기준]\n{keys}\n\n{GRADE_RULES}\n\n[학생 답안]\n{ans}\n\n"
-        "반드시 JSON 배열만 출력하세요: [{\"id\":\"q1a\",\"verdict\":\"정\",\"feedback\":\"...\"}]"
-    )
-
-def secret(name, default=None):
-    try:
-        return st.secrets.get(name, default)
-    except Exception:
-        return default
-
-@st.cache_resource
-def get_client():
-    import anthropic
-    key = secret("ANTHROPIC_API_KEY", "")
-    if not key:
-        return None
-    return anthropic.Anthropic(api_key=key)
-
-def call_grader(prompt):
-    client = get_client()
-    if client is None:
-        raise RuntimeError("ANTHROPIC_API_KEY 설정이 필요합니다.")
-    model = secret("MODEL", "claude-sonnet-4-6")
-    msg = client.messages.create(model=model, max_tokens=1200, messages=[{"role": "user", "content": prompt}])
-    text = "".join(b.text for b in msg.content if getattr(b, "type", "") == "text")
-    
-    backticks = chr(96) * 3
-    text = text.replace(f"{backticks}json", "").replace(backticks, "").strip()
-    
-    m = re.search(r"\[.*\]", text, re.S)
-    return json.loads(m.group(0) if m else text)
-
-def grade(s, qkey):
-    q = s[qkey]
-    answers = {it["id"]: ss.answers.get(akey(s["id"], it["id"]), "").strip() for it in q["items"]}
-    if not any(answers.values()):
-        ss["msg"] = ("warning", "먼저 답을 써 주세요.")
-        return
-    try:
-        with st.spinner("채점 중…"):
-            res = call_grader(build_prompt(s, qkey, answers))
-    except Exception as e:
-        ss["msg"] = ("error", f"채점 오류가 발생했습니다. 다시 눌러 주세요. ({e})")
-        return
-    for it in q["items"]:
-        r = next((x for x in res if isinstance(x, dict) and x.get("id") == it["id"]), None)
-        if r is None:
-            continue
-        ss.verdicts[akey(s["id"], it["id"])] = {
-            "verdict": "정" if str(r.get("verdict", "")).strip() == "정" else "오",
-            "feedback": str(r.get("feedback", "")),
-            "answer": answers[it["id"]],
-        }
-    ss.graded.add(f"{s['id']}-{qkey}")
-
-# ---------------------------------------------------------------- UI 조각
-def show_verdict(k):
-    v = ss.verdicts.get(k)
-    if not v:
-        return
-    stale = v["answer"] != ss.answers.get(k, "").strip()
-    if stale:
-        st.caption("답을 고쳤어요. 다시 채점하면 새 판정을 받을 수 있어요.")
-        return
-    (st.success if v["verdict"] == "정" else st.error)(f"**{v['verdict']}**  {v['feedback']}")
-
-def answer_box(set_id, it):
-    k = akey(set_id, it["id"])
-    widget = st.text_input if it.get("short") else st.text_area
-    val = widget(it["label"], value=ss.answers.get(k, ""), key=f"w-{k}", placeholder="여기에 쓰세요")
-    ss.answers[k] = val
-    show_verdict(k)
-
-def range_box(items):
-    for it in items:
-        st.markdown(f"**{it['label']}**  \n예시 답안: {it['key']['ex']}")
-        for o in it["key"]["ok"]:
-            st.markdown(f"- 인정: {o}")
-        for n in it["key"]["no"]:
-            st.markdown(f"- 불인정: {n}")
-
-def grade_bar(s, qkey):
-    c1, c2 = st.columns([1, 2])
-    if c1.button("채점하기", key=f"g-{s['id']}-{qkey}", type="primary", width="stretch"):
-        grade(s, qkey)
-        st.rerun()
-    if ss.get("msg"):
-        kind, text = ss.pop("msg")
-        getattr(st, kind)(text)
-    unlocked = f"{s['id']}-{qkey}" in ss.graded
-    with c2:
-        if unlocked:
-            with st.expander("인정 답안 범위 보기"):
-                range_box(s[qkey]["items"])
-        else:
-            st.caption("인정 답안 범위는 채점 후 열립니다.")
-
-def cond(lines, template=None):
-    body = "\n".join(f"◦ {ln}" for ln in lines)
-    st.markdown(f"**〈조건〉**  \n{body}")
-    if template:
-        st.markdown("\n".join(f"> {t}" for t in template))
-
-def ads(s):
-    st.markdown("**[서·논술형 1~2] 다음 자료를 읽고 물음에 답하시오.**")
-    c1, c2 = st.columns(2)
-    # 이미지 파일이 준비되지 않았을 경우 에러를 방지하려면 아래 두 줄을 주석(#) 처리하고 텍스트로 대체하세요.
-    c1.image(str(IMG_DIR / s["adA"]), caption="(가)", width="stretch")
-    c2.image(str(IMG_DIR / s["adB"]), caption="(나)", width="stretch")
-
-def pager(idx):
-    c1, c2 = st.columns(2)
-    if idx > 0 and c1.button(f"← {PAGES[idx-1]['name']}", width="stretch"):
-        ss.page = PAGE_IDS[idx - 1]; st.rerun()
-    if idx < len(PAGES) - 1 and c2.button(f"{PAGES[idx+1]['name']} →", type="primary", width="stretch"):
-        ss.page = PAGE_IDS[idx + 1]; st.rerun()
-
-# ---------------------------------------------------------------- 문항 페이지
-def page_q1(s):
-    q = s["q1"]; ads(s)
-    st.subheader("서·논술형 1")
-    st.write("재현 방식 ㉠~㉡에 들어갈 내용을 쓰시오.")
-    st.table({"": ["(가)", "(나)"], "문구": [q["rowA"]["t"], "( ㉠ )"], "이미지": [q["rowA"]["i"], "( ㉡ )"]})
-    cond(["광고 문구·이미지와 효과를 한 문장으로 쓸 것."])
-    for it in q["items"]: answer_box(s["id"], it)
-    grade_bar(s, "q1")
-
-def page_q2(s):
-    q = s["q2"]; ads(s)
-    st.subheader("서·논술형 2")
-    st.write("제작자의 관점과 의도를 서술하시오.")
-    cond(["재현된 내용에서 근거를 찾을 것", "문장 틀에 맞출 것"],
-         ["관점: ( )을/를 ( )로/으로 본다. 이유는 ( ) 때문이다.", "의도: 사람이 ( )하게 하려 한다."])
-    for it in q["items"]: answer_box(s["id"], it)
-    grade_bar(s, "q2")
-
-def page_q3(s):
-    q = s["q3"]
-    st.markdown("**[서·논술형 3] 다음 자료를 읽고 물음에 답하시오.**")
-    c1, c2 = st.columns([1, 1.15])
-    # 이미지 파일이 준비되지 않았을 경우 에러를 방지하려면 아래 줄을 주석(#) 처리하고 텍스트로 대체하세요.
-    c1.image(str(IMG_DIR / s["adC"]), caption="[광고]", width="stretch")
-    with c2:
-        st.markdown("**[학생의 사고 과정]**")
-        st.markdown(q["buy"]); st.markdown(q["think1"]); st.markdown(q["think2"])
-    st.markdown("**(1) ㉠, ㉡에 적절한 표현을 쓰시오.**")
-    answer_box(s["id"], q["items"][0]); answer_box(s["id"], q["items"][1])
-    st.markdown("**(2) 제작자 의도를 서술하시오.**")
-    cond(["근거를 포함할 것", "문장 틀에 맞출 것"], ["의도: 사람이 ( )하게 하려 한다. 이유는 ( ) 때문이다."])
-    answer_box(s["id"], q["items"][2])
-    grade_bar(s, "q3")
-
-# ---------------------------------------------------------------- 결과 페이지
-def collect():
-    out = []
-    for si, s in enumerate(SETS, 1):
-        for qi, qk in enumerate(["q1", "q2", "q3"], 1):
-            rows = []
-            for it in s[qk]["items"]:
-                k = akey(s["id"], it["id"]); a = ss.answers.get(k, "").strip(); v = ss.verdicts.get(k)
-                if not a: status = "미작성"
-                elif v is None: status = "미채점"
-                elif v["answer"] != a: status = "수정 후 미채점"
-                else: status = v["verdict"]
-                rows.append({"답란": it["label"], "내 답안": a or "—", "판정": status, "피드백": v["feedback"] if v and status in ("정", "오") else ""})
-            out.append({"key": f"{s['id']}-{qk}", "name": f"{si}번 세트 – 서·논술형 {qi}", "rows": rows})
-    return out
-
-def result_text(data):
-    lines = [f"학번·이름: {ss.student}", f"제출 시각: {dt.datetime.now():%Y-%m-%d %H:%M}", ""]
-    for d in data:
-        lines.append(f"[{d['name']}]")
-        for r in d["rows"]:
-            fb = f" / {r['피드백']}" if r["피드백"] else ""
-            lines.append(f"{r['답란']}: {r['내 답안']} → {r['판정']}{fb}")
-        lines.append("")
-    return "\n".join(lines)
-
-def submit_to_sheet(data):
-    import gspread
-    from google.oauth2.service_account import Credentials
-    info = dict(secret("gcp_service_account"))
-    creds = Credentials.from_service_account_info(info, scopes=["https://www.googleapis.com/auth/spreadsheets"])
-    sh = gspread.authorize(creds).open_by_url(secret("SHEET_URL"))
-    ws = sh.sheet1
-    header = ["제출시각", "학번·이름"] + [f"{d['name']}" for d in data] + ["정 개수", "작성 개수"]
-    if not ws.row_values(1): ws.append_row(header)
-    cells = []
-    ok = done = 0
-    for d in data:
-        cells.append("\n".join(f"{r['답란']}: {r['내 답안']} → {r['판정']}" for r in d["rows"]))
-        for r in d["rows"]:
-            if r["내 답안"] != "—": done += 1
-            if r["판정"] == "정": ok += 1
-    ws.append_row([f"{dt.datetime.now():%Y-%m-%d %H:%M:%S}", ss.student] + cells + [ok, done])
-
-def page_result():
-    c1, c2 = st.columns([3, 1])
-    c1.subheader("결과 정리")
-    if c2.button("다시 풀기", type="secondary", width="stretch"): ss["confirm_reset"] = True
-    if ss.get("confirm_reset"):
-        st.warning("모두 지우고 다시 풀까요?")
-        a, b = st.columns(2)
-        if a.button("네, 다시 풀게요", type="primary", width="stretch"):
-            for k in list(ss.keys()):
-                if k.startswith("w-"): del ss[k]
-            ss.answers = {}; ss.verdicts = {}; ss.graded = set(); ss.confirm_reset = False
-            ss.page = PAGE_IDS[0]; st.rerun()
-        if b.button("아니요", width="stretch"):
-            ss.confirm_reset = False; st.rerun()
-            
-    ss.student = st.text_input("학번·이름", value=ss.student, placeholder="예: 20415 홍길동")
-    data = collect()
-    st.markdown(f"**답란 {sum(len(d['rows']) for d in data)}개 중 작성 {sum(1 for d in data for r in d['rows'] if r['내 답안'] != '—')}개, 정 {sum(1 for d in data for r in d['rows'] if r['판정'] == '정')}개**")
-    for i, d in enumerate(data):
-        h1, h2 = st.columns([3, 1])
-        h1.markdown(f"**{d['name']}**")
-        if h2.button("이 문항으로", key=f"go-{d['key']}", width="stretch"):
-            ss.page = d["key"]; st.rerun()
-        st.table(d["rows"])
-    txt = result_text(data)
-    c1, c2 = st.columns(2)
-    sheet_ok = secret("gcp_service_account") is not None and secret("SHEET_URL") is not None
-    if c1.button("구글 시트로 제출", type="primary", width="stretch", disabled=not sheet_ok):
-        if not ss.student.strip(): st.warning("학번·이름을 먼저 써 주세요.")
-        else:
-            try:
-                submit_to_sheet(data); st.success("제출 완료!")
-            except Exception as e:
-                st.error(f"제출 실패: {e}")
-    if not sheet_ok: c1.caption("구글 시트 미설정 상태입니다.")
-    c2.download_button("결과 내려받기(.txt)", data=txt, file_name=f"결과_{ss.student or '학생'}.txt", mime="text/plain", width="stretch")
-
-# ---------------------------------------------------------------- 메인
-st.title("서논술형 답안 연습")
-st.caption("광고·홍보물의 재현과 관점 — 1회 시험 대비")
-
-choice = st.radio("문항", [p["tab"] for p in PAGES], horizontal=True, label_visibility="collapsed", index=PAGE_IDS.index(ss.page))
-sel = next(p for p in PAGES if p["tab"] == choice)
-if sel["id"] != ss.page: ss.page = sel["id"]
-idx = PAGE_IDS.index(ss.page)
-page = PAGES[idx]
-
-if page["id"] == "result": page_result()
-else:
-    {"q1": page_q1, "q2": page_q2, "q3": page_q3}[page["qkey"]](page["set"])
-st.divider()
-pager(idx)
