@@ -99,7 +99,7 @@ SETS = [
 HERE = Path(__file__).parent
 IMG_DIR = HERE / "images"
 
-st.set_page_config(page_title="서·논술형 답안 연습", page_icon="🕵️‍♂️", layout="wide")
+st.set_page_config(page_title="국어 답안 작성 연습", page_icon="🕵️‍♂️", layout="wide")
 
 # ---------------------------------------------------------------- 커스텀 CSS 디자인
 st.markdown("""
@@ -161,14 +161,8 @@ if "graded" not in ss: ss.graded = set()
 if "feedbacks" not in ss: ss.feedbacks = {}
 if "student" not in ss: ss.student = ""
 
-# ---------------------------------------------------------------- 사이드바
+# ---------------------------------------------------------------- 사이드바 (학습 도우미만 남김)
 with st.sidebar:
-    st.markdown("<div style='font-size:1.2em; font-weight:bold; margin-bottom:10px;'>👤 학생 정보</div>", unsafe_allow_html=True)
-    st.caption("자신의 학번과 이름을 입력하면 자신의 회차별 응답 결과와 채점 정보가 누적됩니다.")
-    ss.student = st.text_input("학번과 이름", value=ss.student, placeholder="예: 20100 조중이", label_visibility="collapsed")
-    
-    st.divider()
-    
     st.markdown("<div style='font-size:1.5em; font-weight:bold; margin-bottom:15px;'>📖 개념 길잡이</div>", unsafe_allow_html=True)
     
     with st.expander("📝 1) 시험 범위", expanded=True):
@@ -257,7 +251,6 @@ def get_local_feedback(answer, label, set_id):
         elif not has_view:
             return {"status": "error", "msg": "💡 조건 누락: 근거는 좋은데, 그래서 대상을 무엇으로 '보는지(~로 본다, ~라고 생각한다 등)'에 대한 결론이 명확하지 않습니다."}
 
-        # 내용 타당성 검증 확장
         if set_id == "set1":
             if not any(w in ans for w in ["위험", "위협", "생명", "사고", "문제", "인식", "차이", "치명", "아찔", "다르", "나쁜", "부정", "조심"]):
                 return {"status": "error", "msg": "💡 내용 보완 필요: 문장 형식은 맞지만 내용이 타당하지 않습니다. 스마트폰 보행이 얼마나 '위험'한지, 혹은 운전자와의 '인식 차이'가 어떤지 광고 맥락에 맞게 적어주세요."}
@@ -337,8 +330,15 @@ def get_base64_image(file_name, label):
         return f"<div style='background-color: #f8f9fa; padding: 20px; text-align: center; border-radius: 10px;'><strong style='color: #343a40;'>{label}</strong><br>이미지 로드 대기 중...</div>"
 
 # ---------------------------------------------------------------- 상단 디자인
-st.markdown("<div style='font-size: 2em; font-weight: bold; margin-bottom: 0.2em;'>🕵️‍♂️ [국어] 서·논술형 답안 작성 연습</div>", unsafe_allow_html=True)
+st.markdown("<div style='font-size: 2em; font-weight: bold; margin-bottom: 0.2em;'>🕵️‍♂️ [국어] 답안 작성 연습</div>", unsafe_allow_html=True)
 st.markdown("<div style='font-size: 1.2em; color: #555; margin-bottom: 1em;'>작성한 답안을 입력한 뒤 문제의 조건에 맞게 작성하였는지 확인하세요.</div>", unsafe_allow_html=True)
+
+# 학생 정보란을 메인 화면으로 이동
+with st.container():
+    st.markdown("<div style='font-size:1.2em; font-weight:bold; margin-bottom:5px;'>👤 학생 정보 입력</div>", unsafe_allow_html=True)
+    st.caption("자신의 학번과 이름을 정확히 입력해야 채점 결과가 누적 기록됩니다.")
+    ss.student = st.text_input("학번과 이름", value=ss.student, placeholder="예: 20100 조중이", label_visibility="collapsed")
+st.write("")
 
 completed = len(ss.graded)
 st.progress(completed / 9.0)
@@ -483,7 +483,7 @@ for i, tab in enumerate(tabs[:3]):
                 
             if submit_btn:
                 if not ss.student.strip():
-                    st.error("좌측 사이드바에 학번과 이름을 먼저 입력해주세요!")
+                    st.error("상단에 학번과 이름을 먼저 입력해주세요!")
                 elif all(v.strip() for v in inputs.values()):
                     for it in q["items"]:
                         k_it = f"{k_q}-{it['id']}"
@@ -534,7 +534,7 @@ for i, tab in enumerate(tabs[:3]):
                 
             if submit_btn:
                 if not ss.student.strip():
-                    st.error("좌측 사이드바에 학번과 이름을 먼저 입력해주세요!")
+                    st.error("상단에 학번과 이름을 먼저 입력해주세요!")
                 elif all(v.strip() for v in inputs.values()):
                     for it in q["items"]:
                         k_it = f"{k_q}-{it['id']}"
@@ -598,7 +598,7 @@ for i, tab in enumerate(tabs[:3]):
                 
             if submit_btn:
                 if not ss.student.strip():
-                    st.error("좌측 사이드바에 학번과 이름을 먼저 입력해주세요!")
+                    st.error("상단에 학번과 이름을 먼저 입력해주세요!")
                 elif all(v.strip() for v in inputs.values()):
                     for i_it in q["items"]:
                         k_id = f"{k_q}-{i_it['id']}"
@@ -628,7 +628,7 @@ with tabs[3]:
     st.caption("구글 스프레드시트에 안전하게 보관된 회차별 누적 학습 기록을 불러옵니다.")
     
     if not ss.student:
-        st.warning("⚠️ 왼쪽 사이드바에 학번과 이름을 입력하셔야 누적 학습 기록을 조회할 수 있습니다.")
+        st.warning("⚠️ 상단에 학번과 이름을 입력하셔야 누적 학습 기록을 조회할 수 있습니다.")
     else:
         if st.button("📥 내 이전 기록 모두 불러오기", type="primary"):
             with st.spinner("과거 기록을 정리해서 가져오는 중입니다..."):
