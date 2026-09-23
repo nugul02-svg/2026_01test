@@ -101,22 +101,19 @@ IMG_DIR = HERE / "images"
 
 st.set_page_config(page_title="서·논술형 답안 연습", page_icon="🕵️‍♂️", layout="wide")
 
-# ---------------------------------------------------------------- 커스텀 CSS 디자인 (강제 적용)
+# ---------------------------------------------------------------- 커스텀 CSS 디자인
 st.markdown("""
 <style>
-/* 링크 앵커 아이콘 강제 숨김 처리 */
 .stMarkdown a.header-anchor, .stMarkdown a.header-anchor svg {
     display: none !important;
     visibility: hidden !important;
 }
 
-/* 상단 메인 탭 서체 진하게 */
 .stTabs [data-baseweb="tab-list"] button [data-testid="stMarkdownContainer"] p {
     font-size: 1.3rem !important;
     font-weight: 800 !important;
 }
 
-/* 메인 탭 붉은색 활성화 디자인 */
 button[data-baseweb="tab"][aria-selected="true"] {
     color: #ff4b4b !important;
     border-bottom: 2px solid #ff4b4b !important;
@@ -125,7 +122,6 @@ button[data-baseweb="tab"][aria-selected="true"] p {
     color: #ff4b4b !important;
 }
 
-/* 하위 문항 선택 탭(Radio) 버튼형 디자인 강제 적용 */
 div[data-testid="stRadio"] > div {
     display: flex !important;
     flex-direction: row !important;
@@ -144,20 +140,18 @@ div[data-testid="stRadio"] label {
     cursor: pointer !important;
     margin: 0 !important;
 }
-/* 스트림릿 기본 동그라미 라디오 버튼 강제 숨김 */
 div[data-testid="stRadio"] label > div:first-child {
     display: none !important;
 }
 div[data-testid="stRadio"] label[data-checked="true"] {
-    background-color: #1a73e8 !important; /* 파란색 활성화 */
+    background-color: #1a73e8 !important;
     border-color: #1a73e8 !important;
 }
 div[data-testid="stRadio"] label[data-checked="true"] p {
-    color: #ffffff !important; /* 흰색 글씨 */
+    color: #ffffff !important;
     font-weight: bold !important;
 }
 
-/* 입력창 하단의 Press Enter to apply 숨기기 */
 div[data-testid="InputInstructions"] {
     display: none !important;
 }
@@ -171,7 +165,7 @@ if "graded" not in ss: ss.graded = set()
 if "feedbacks" not in ss: ss.feedbacks = {}
 if "student" not in ss: ss.student = ""
 
-# ---------------------------------------------------------------- 사이드바 (학습 도우미)
+# ---------------------------------------------------------------- 사이드바
 with st.sidebar:
     st.markdown("<div style='font-size:1.2em; font-weight:bold; margin-bottom:10px;'>👤 학생 정보</div>", unsafe_allow_html=True)
     st.caption("자신의 학번과 이름을 입력하면 자신의 회차별 응답 결과와 채점 정보가 누적됩니다.")
@@ -200,29 +194,52 @@ with st.sidebar:
         </div>
         """, unsafe_allow_html=True)
 
-# ---------------------------------------------------------------- 로컬 채점 로직 (융통성 대폭 강화)
-def get_local_feedback(answer, label):
+# ---------------------------------------------------------------- 로컬 채점 로직
+def get_local_feedback(answer, label, set_id):
     ans = answer.replace(" ", "")
-    if len(ans) < 3:
+    if len(ans) < 2:
         return {"status": "error", "msg": "답안이 너무 짧습니다. 의미가 잘 드러나게 문장을 완성해 보세요."}
         
-    # 문구 ↔ 이미지 교차 입력 원천 차단
-    if "문구" in label:
-        if any(w in ans for w in ["이미지", "그림", "사진", "모습"]):
+    # 1. ㉠, ㉡ 단순 빈칸 추리 문항 검증 (내용 단서 기반)
+    if "㉠" in label or "㉡" in label:
+        if set_id == "set1":
+            if "㉠" in label:
+                if any(w in ans for w in ["관리", "쪼개", "통제", "효율", "계획", "바쁘", "빈틈", "아껴", "가치"]): return {"status": "success", "msg": "주어진 자료를 바탕으로 관점을 아주 정확하게 추리했습니다!"}
+                else: return {"status": "error", "msg": "💡 단서 분석이 아쉽습니다. 광고 속 '뛰어가는 학생'과 '1분도 놓치지 않는'이라는 문구를 다시 확인해 보세요. 시간을 여유롭게 둔다는 의미일까요, 아니면 철저하게 관리해야 한다는 의미일까요?"}
+            else:
+                if any(w in ans for w in ["휴식", "여유", "쉼", "편안", "충전", "자유"]): return {"status": "success", "msg": "주어진 자료를 바탕으로 관점을 아주 정확하게 추리했습니다!"}
+                else: return {"status": "error", "msg": "💡 단서 분석이 아쉽습니다. '쉬는 시간 15분', '벤치에 앉아 쉬는' 등의 힌트를 바탕으로, 학생이 시간을 어떻게 쓰기를 바라는지 추리해 보세요."}
+                
+        elif set_id == "set2":
+            if "㉠" in label:
+                if any(w in ans for w in ["시선", "과시", "자랑", "뽐내", "부러움", "타인", "남들", "도구", "자신감"]): return {"status": "success", "msg": "주어진 자료를 바탕으로 관점을 아주 정확하게 추리했습니다!"}
+                else: return {"status": "error", "msg": "💡 단서 분석이 아쉽습니다. '신는 순간, 시선이 달라집니다'라는 문구와 남들이 부러워하며 올려다보는 이미지를 통해, 운동화를 어떤 용도로 보는지 추리해 보세요."}
+            else:
+                if any(w in ans for w in ["실용", "편안", "보호", "활동", "운동", "가볍", "도구", "목적"]): return {"status": "success", "msg": "주어진 자료를 바탕으로 관점을 아주 정확하게 추리했습니다!"}
+                else: return {"status": "error", "msg": "💡 단서 분석이 아쉽습니다. 운동장에서 공을 쫓아 뛰는 이미지와 '발이 가벼워집니다'라는 문구를 바탕으로, 운동화의 진짜 역할이 무엇인지 추리해 보세요."}
+                
+        elif set_id == "set3":
+            if "㉠" in label:
+                if any(w in ans for w in ["단절", "혼자", "차단", "개인", "도피", "나만", "끄고", "수단", "거리"]): return {"status": "success", "msg": "주어진 자료를 바탕으로 관점을 아주 정확하게 추리했습니다!"}
+                else: return {"status": "error", "msg": "💡 단서 분석이 아쉽습니다. '세상을 끄고, 나만 남기다'라는 문구와 주변을 흐리게 처리한 이미지를 바탕으로, 이어폰이 타인과 소통하는 것인지 아니면 차단하는 것인지 추리해 보세요."}
+            else:
+                if any(w in ans for w in ["연결", "공유", "소통", "함께", "같이", "나눔", "타인", "매개체"]): return {"status": "success", "msg": "주어진 자료를 바탕으로 관점을 아주 정확하게 추리했습니다!"}
+                else: return {"status": "error", "msg": "💡 단서 분석이 아쉽습니다. 두 학생이 '같은 노래'를 들으며 함께 웃는 모습을 바탕으로, 이어폰이 타인과의 관계에서 어떤 역할을 하는지 관점을 추리해 보세요."}
+
+    # 2. 문구 / 이미지 효과 검증 (Q1)
+    if "문구" in label or "이미지" in label:
+        if any(w in ans for w in ["이미지", "그림", "사진", "모습"]) and "문구" in label:
             return {"status": "error", "msg": "💡 문구(글)에 대한 분석을 쓰는 칸인데, 이미지나 그림에 대한 설명이 섞여 있는 것 같아요. 다시 확인해 보세요!"}
-    if "이미지" in label:
-        if any(w in ans for w in ["문구", "글씨", "글귀", "텍스트", "문장"]):
+        if any(w in ans for w in ["문구", "글씨", "글귀", "텍스트", "문장"]) and "이미지" in label:
             return {"status": "error", "msg": "💡 이미지(그림)에 대한 분석을 쓰는 칸인데, 문구(글)에 대한 설명이 섞여 있는 것 같아요. 다시 확인해 보세요!"}
             
-    if "문구" in label or "이미지" in label:
-        # 효과 키워드 대폭 확장 (깨닫, 이해, 알려, 생각 등 추가)
         effect_words = ["보여", "나타", "하게", "주어", "알게", "느끼", "전달", "효과", "위험", "경각심", "촉구", "깨닫", "생각", "유도", "이해", "알려", "강조"]
         if not any(w in ans for w in effect_words):
             return {"status": "error", "msg": "💡 조건 누락: 광고의 문구나 이미지만 옮겨 쓰지 말고, 그것이 주는 '효과(의미나 수용자에게 미치는 영향)'를 서술해 보세요. (예: ~라는 것을 깨닫게 함, ~효과를 줌 등)"}
         return {"status": "success", "msg": "문맥과 조건에 맞게 잘 작성했습니다! 훌륭합니다."}
         
+    # 3. 관점 검증 (Q2)
     if "관점" in label:
-        # 근거 및 관점 서술어 유연하게 수용
         reason_words = ["때문", "이유", "까닭", "왜냐하면", "보아", "보면", "라서", "므로", "통해", "여서", "어서"]
         view_words = ["본다", "보여", "생각", "여긴", "간주", "의미", "관점", "바라", "로본다", "으로본다", "여긴다"]
         
@@ -235,28 +252,43 @@ def get_local_feedback(answer, label):
             return {"status": "error", "msg": "💡 조건 누락: 관점은 잘 찾았는데, 그렇게 생각한 '근거(이유, ~때문이다 등)'가 빠져 있습니다."}
         elif not has_view:
             return {"status": "error", "msg": "💡 조건 누락: 근거는 좋은데, 그래서 대상을 무엇으로 '보는지(~로 본다, ~라고 생각한다 등)'에 대한 결론이 명확하지 않습니다."}
-        return {"status": "success", "msg": "문장 틀과 문맥에 맞게 잘 작성했습니다! 훌륭합니다."}
 
-    if "의도" in label and "원본 광고" not in label:
+        # 2단계: 내용 타당성 검증
+        if set_id == "set1":
+            if not any(w in ans for w in ["위험", "위협", "생명", "사고", "문제", "인식", "차이", "치명", "아찔", "다르"]):
+                return {"status": "error", "msg": "💡 내용 보완 필요: 문장 형식은 맞지만 내용이 타당하지 않습니다. 스마트폰 보행이 얼마나 '위험'한지, 혹은 운전자와의 '인식 차이'가 어떤지 광고 맥락에 맞게 적어주세요."}
+        elif set_id == "set2":
+            if not any(w in ans for w in ["낭비", "자원", "쓰레기", "버리", "산", "노고", "정성", "수고", "땀", "노력", "사람", "가치"]):
+                return {"status": "error", "msg": "💡 내용 보완 필요: 문장 형식은 맞지만 내용이 타당하지 않습니다. 음식물 쓰레기가 어떤 '낭비'인지, 혹은 누구의 '노고'가 버려지는 것인지 적어주세요."}
+        elif set_id == "set3":
+            if not any(w in ans for w in ["폭력", "고통", "무거", "피해", "스트레스", "짓누르", "천장", "소음", "실천", "해결", "쉽게", "배려", "작은", "간단", "이웃"]):
+                return {"status": "error", "msg": "💡 내용 보완 필요: 문장 형식은 맞지만 내용이 타당하지 않습니다. 층간소음이 이웃에게 어떤 '고통'인지, 혹은 슬리퍼가 얼마나 '쉬운 해결책(실천)'인지 적어주세요."}
+
+        return {"status": "success", "msg": "문장 틀과 내용의 타당성까지 완벽하게 작성했습니다! 훌륭합니다."}
+
+    # 4. 의도 검증 (Q2, Q3)
+    if "의도" in label:
         intent_words = ["하려", "하기", "하게", "유도", "목적", "바란다", "원한", "만들려", "의도", "바람", "이끌", "행동"]
         if not any(w in ans for w in intent_words):
             return {"status": "error", "msg": "💡 조건 누락: 제작자가 수용자에게 어떤 행동이나 생각을 '하게 하려는지(~하게 하려 한다, ~가 목적이다 등)'가 명확히 드러나게 써보세요."}
-        return {"status": "success", "msg": "제작자의 의도를 문맥에 맞게 잘 파악했습니다! 훌륭합니다."}
 
-    if "원본 광고의 제작자 의도" in label:
-        reason_words = ["때문", "이유", "까닭", "왜냐하면", "보아", "보면", "라서", "므로", "통해", "여서", "어서"]
-        intent_words = ["하려", "하기", "하게", "유도", "목적", "바란다", "원한", "만들려", "의도", "바람", "이끌", "행동"]
-        
-        has_reason = any(w in ans for w in reason_words)
-        has_intent = any(w in ans for w in intent_words)
-        
-        if not has_reason and not has_intent:
-            return {"status": "error", "msg": "💡 조건 누락: 제작자의 의도(~하게 하려 한다)와 그 근거(~때문이다)를 모두 포함해서 써보세요."}
-        elif not has_reason:
-            return {"status": "error", "msg": "💡 조건 누락: 의도는 잘 찾았는데, 광고의 어떤 부분을 보고 그렇게 생각했는지 '근거(~때문이다 등)'가 빠져 있습니다."}
-        elif not has_intent:
-            return {"status": "error", "msg": "💡 조건 누락: 근거는 좋은데, 그래서 결국 수용자가 어떻게 '행동하기를 바라는지(~하게 하려 한다 등)'가 명확하지 않습니다."}
-        return {"status": "success", "msg": "제작자의 의도와 근거를 문맥에 맞게 훌륭하게 작성했습니다!"}
+        if "원본 광고" in label:
+            reason_words = ["때문", "이유", "까닭", "왜냐하면", "보아", "보면", "라서", "므로", "통해", "여서", "어서"]
+            if not any(w in ans for w in reason_words):
+                return {"status": "error", "msg": "💡 조건 누락: 의도는 적었으나, 광고의 어떤 부분을 보고 그렇게 생각했는지 '근거(~때문이다 등)'가 빠져 있습니다."}
+
+        # 2단계: 내용 타당성 검증
+        if set_id == "set1":
+            if not any(w in ans for w in ["보지않", "하지않", "주의", "조심", "경각심", "멈추", "스마트폰", "관리", "철저", "계획", "사게", "구매"]):
+                return {"status": "error", "msg": "💡 내용 보완 필요: 문장 형식은 맞지만 핵심 내용이 아쉽습니다. 사람들이 스마트폰을 어떻게 하기를(혹은 시계를 사서 어떻게 하기를) 바라는지 맥락에 맞게 적어주세요."}
+        elif set_id == "set2":
+            if not any(w in ans for w in ["남기지", "다먹", "줄이", "버리지", "감사", "과시", "시선", "자랑", "사게", "구매", "운동화"]):
+                return {"status": "error", "msg": "💡 내용 보완 필요: 문장 형식은 맞지만 핵심 내용이 아쉽습니다. 음식을 어떻게 하기를(혹은 신발을 사서 어떻게 하기를) 바라는지 맥락에 맞게 적어주세요."}
+        elif set_id == "set3":
+            if not any(w in ans for w in ["조용", "배려", "걷게", "뛰지", "슬리퍼", "신게", "실천", "단절", "혼자", "차단", "도피", "사게", "구매", "이어폰"]):
+                return {"status": "error", "msg": "💡 내용 보완 필요: 문장 형식은 맞지만 핵심 내용이 아쉽습니다. 이웃을 위해 어떻게 하기를(혹은 이어폰을 사서 어떻게 하기를) 바라는지 맥락에 맞게 적어주세요."}
+
+        return {"status": "success", "msg": "제작자의 의도와 핵심 내용을 문맥에 맞게 훌륭하게 파악했습니다!"}
             
     return {"status": "success", "msg": "조건에 맞게 잘 작성했습니다!"}
 
@@ -273,9 +305,9 @@ def get_base64_image(file_name, label):
         </div>
         """
     except Exception:
-        return f"<div style='background-color: #f8f9fa; padding: 20px; text-align: center; border-radius: 10px;'><strong style='color: #343a40;'>{label}</strong><br>이미 로드 대기 중...</div>"
+        return f"<div style='background-color: #f8f9fa; padding: 20px; text-align: center; border-radius: 10px;'><strong style='color: #343a40;'>{label}</strong><br>이미지 로드 대기 중...</div>"
 
-# ---------------------------------------------------------------- 상단 디자인 (HTML 강제 적용)
+# ---------------------------------------------------------------- 상단 디자인
 st.markdown("<div style='font-size: 2em; font-weight: bold; margin-bottom: 0.2em;'>🕵️‍♂️ [국어] 서·논술형 답안 작성 연습</div>", unsafe_allow_html=True)
 st.markdown("<div style='font-size: 1.2em; color: #555; margin-bottom: 1em;'>작성한 답안을 입력한 뒤 문제의 조건에 맞게 작성하였는지 확인하세요.</div>", unsafe_allow_html=True)
 
@@ -427,7 +459,7 @@ for i, tab in enumerate(tabs[:3]):
                     for it in q["items"]:
                         k_it = f"{k_q}-{it['id']}"
                         ss.answers[k_it] = inputs[k_it]
-                        fb = get_local_feedback(inputs[k_it], it['label'])
+                        fb = get_local_feedback(inputs[k_it], it['label'], s['id'])
                         ss.feedbacks[k_it] = fb
                         log_action_to_sheet(s['id'], "q1", it['label'], inputs[k_it], fb["status"], fb["msg"])
                     ss.graded.add(k_q)
@@ -473,7 +505,7 @@ for i, tab in enumerate(tabs[:3]):
                     for it in q["items"]:
                         k_it = f"{k_q}-{it['id']}"
                         ss.answers[k_it] = inputs[k_it]
-                        fb = get_local_feedback(inputs[k_it], it['label'])
+                        fb = get_local_feedback(inputs[k_it], it['label'], s['id'])
                         ss.feedbacks[k_it] = fb
                         log_action_to_sheet(s['id'], "q2", it['label'], inputs[k_it], fb["status"], fb["msg"])
                     ss.graded.add(k_q)
@@ -537,7 +569,7 @@ for i, tab in enumerate(tabs[:3]):
                     for i_it in q["items"]:
                         k_id = f"{k_q}-{i_it['id']}"
                         ss.answers[k_id] = inputs[k_id]
-                        fb = get_local_feedback(inputs[k_id], i_it['label'])
+                        fb = get_local_feedback(inputs[k_id], i_it['label'], s['id'])
                         ss.feedbacks[k_id] = fb
                         log_action_to_sheet(s['id'], "q3", i_it['label'], inputs[k_id], fb["status"], fb["msg"])
                     ss.graded.add(k_q)
