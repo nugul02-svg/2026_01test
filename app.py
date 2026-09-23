@@ -101,26 +101,47 @@ IMG_DIR = HERE / "images"
 
 st.set_page_config(page_title="서·논술형 답안 연습", page_icon="🕵️‍♂️", layout="wide")
 
-# ---------------------------------------------------------------- 커스텀 CSS 디자인
+# ---------------------------------------------------------------- 커스텀 CSS 디자인 (강제 적용)
 st.markdown("""
 <style>
-a.header-anchor { display: none !important; }
+/* 1. 링크 앵커 아이콘 강제 숨김 처리 */
+.stMarkdown a.header-anchor, .stMarkdown a.header-anchor svg {
+    display: none !important;
+    visibility: hidden !important;
+}
+
+/* 2. 상단 메인 탭 서체 진하게 */
 .stTabs [data-baseweb="tab-list"] button [data-testid="stMarkdownContainer"] p {
     font-size: 1.3rem !important;
     font-weight: 800 !important;
 }
-div[role="radiogroup"] {
-    display: flex; flex-direction: row; gap: 5px; margin-bottom: 20px;
+
+/* 3. 하위 문항 선택 탭(Radio) 폴더 디자인 강제 적용 */
+div[data-testid="stRadio"] > div {
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 5px !important;
 }
-div[role="radiogroup"] > label {
-    background-color: #f1f3f5; padding: 10px 20px !important;
-    border-radius: 10px 10px 0 0 !important; border: 1px solid #ced4da;
-    border-bottom: none; font-weight: bold; cursor: pointer;
+div[data-testid="stRadio"] label {
+    background-color: #f1f3f5 !important;
+    padding: 10px 20px !important;
+    border-radius: 10px 10px 0 0 !important;
+    border: 1px solid #ced4da !important;
+    border-bottom: none !important;
+    font-weight: bold !important;
+    cursor: pointer !important;
+    margin: 0 !important;
 }
-div[role="radiogroup"] > label[data-checked="true"] {
-    background-color: #ffffff; border-top: 3px solid #2b6cb0; color: #2b6cb0;
+div[data-testid="stRadio"] label[data-checked="true"] {
+    background-color: #ffffff !important;
+    border-top: 3px solid #2b6cb0 !important;
+    color: #2b6cb0 !important;
 }
-div[data-testid="InputInstructions"] { display: none !important; }
+
+/* 입력창 하단의 Press Enter to apply 숨기기 */
+div[data-testid="InputInstructions"] {
+    display: none !important;
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -141,41 +162,33 @@ with st.sidebar:
     
     st.markdown("### 💡 학습 도우미")
     
-    # 1) 시험 범위 구획화
     st.markdown("#### 1) 시험 범위")
+    st.markdown("• 교과서 96-97쪽 본문 (교과서 본문이 출제됩니다)\n• 국어 학습지 전체")
+    st.write("")
+    
+    st.markdown("#### 2) 반드시 알아야 할 개념")
+    st.markdown("• **재현**: 현실을 재구성했으나 현실과 똑같지 않음. 광고에서는 문구와 이미지로 드러남.")
+    st.markdown("• **관점**: 제작자가 대상을 보는 시선.")
     st.markdown("""
-    <div style="background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 5px; padding: 15px; margin-bottom: 20px;">
-        • 교과서 96-97쪽 본문 (교과서 본문이 출제됩니다)<br>
-        • 국어 학습지 전체
+    <div style="background-color: #e8f4f8; padding: 10px; border-left: 4px solid #2b6cb0; border-radius: 4px; margin-bottom: 10px;">
+        <span style="font-weight: bold; color: #2b6cb0;">[TIP]</span> "( )을/를 ( )으로/로 본다"의 문장 형태로 정리할 수 있음.
     </div>
     """, unsafe_allow_html=True)
     
-    # 2) 반드시 알아야 할 개념 구획화
-    st.markdown("#### 2) 반드시 알아야 할 개념")
+    st.markdown("• **의도**: 제작자가 수용자에게 하게 하려는 것.")
     st.markdown("""
-    <div style="background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 5px; padding: 15px;">
-        • <b>재현</b>: 현실을 재구성했으나 현실과 똑같지 않음. 광고에서는 문구와 이미지로 드러남.<br><br>
-        • <b>관점</b>: 제작자가 대상을 보는 시선.<br>
-        <div style="background-color: #e8f4f8; padding: 8px; border-left: 4px solid #2b6cb0; border-radius: 4px; margin: 5px 0 10px 0;">
-            <span style="font-size: 0.85em; font-weight: bold; color: #2b6cb0;">[TIP]</span> 
-            <span style="font-size: 0.85em;">"( )을/를 ( )으로/로 본다"의 문장 형태로 정리할 수 있음.</span>
-        </div>
-        • <b>의도</b>: 제작자가 수용자에게 하게 하려는 것.<br>
-        <div style="background-color: #e8f4f8; padding: 8px; border-left: 4px solid #2b6cb0; border-radius: 4px; margin-top: 5px;">
-            <span style="font-size: 0.85em; font-weight: bold; color: #2b6cb0;">[TIP]</span> 
-            <span style="font-size: 0.85em;">"광고를 본 사람이 ( )하게 하려 한다"의 문장 형태로 정리할 수 있음.</span>
-        </div>
+    <div style="background-color: #e8f4f8; padding: 10px; border-left: 4px solid #2b6cb0; border-radius: 4px;">
+        <span style="font-weight: bold; color: #2b6cb0;">[TIP]</span> "광고를 본 사람이 ( )하게 하려 한다"의 문장 형태로 정리할 수 있음.
     </div>
     """, unsafe_allow_html=True)
 
-# ---------------------------------------------------------------- 로컬 채점 로직 (조건 확인 고도화)
+# ---------------------------------------------------------------- 로컬 채점 로직
 def get_local_feedback(answer, label):
     ans = answer.replace(" ", "")
     if len(ans) < 3:
         return {"status": "error", "msg": "답안이 너무 짧습니다. 조건에 맞게 문장을 완성해 보세요."}
         
     if "문구" in label or "이미지" in label:
-        # 효과가 기술되지 않은 경우 (보여 줌, 나타냄, 하게 함 등의 서술어가 없는 경우)
         if not any(word in ans for word in ["보여", "나타", "하게", "주어", "알게", "느끼", "전달", "효과", "위험", "경각심", "촉구"]):
             return {"status": "error", "msg": "조건 누락: 광고의 문구나 이미지만 옮겨 쓰지 말고, 그것이 주는 '효과(의미나 수용자에게 미치는 영향)'를 반드시 서술해 보세요."}
         return {"status": "success", "msg": "조건에 맞게 잘 작성했습니다! 훌륭합니다."}
@@ -225,7 +238,7 @@ st.progress(completed / 9.0)
 st.markdown(f"**이번 회차 내가 푼 문제 : {completed}/9**")
 st.write("")
 
-# ---------------------------------------------------------------- 구글 시트 연동 (저장 및 불러오기)
+# ---------------------------------------------------------------- 구글 시트 연동 및 데이터 가공
 def log_action_to_sheet(set_id, qkey, label, answer_text, fb_status):
     if "gcp_service_account" not in st.secrets or "SHEET_URL" not in st.secrets:
         return
@@ -236,12 +249,11 @@ def log_action_to_sheet(set_id, qkey, label, answer_text, fb_status):
         creds = Credentials.from_service_account_info(info, scopes=["https://www.googleapis.com/auth/spreadsheets"])
         sh = gspread.authorize(creds).open_by_url(st.secrets["SHEET_URL"])
         ws = sh.sheet1
-        # 시간, 학번, 세트문항, 답란, 작성내용, 정답여부
         ws.append_row([f"{dt.datetime.now():%Y-%m-%d %H:%M:%S}", ss.student, f"[{set_id.upper()}] {qkey}", label, answer_text, fb_status])
     except Exception:
         pass
 
-def fetch_history_from_sheet(student_name):
+def fetch_and_process_history(student_name):
     if not student_name or "gcp_service_account" not in st.secrets or "SHEET_URL" not in st.secrets:
         return []
     try:
@@ -253,9 +265,47 @@ def fetch_history_from_sheet(student_name):
         ws = sh.sheet1
         all_data = ws.get_all_values()
         
-        # 학번(인덱스 1)이 일치하는 데이터만 추출하여 최신순으로 정렬
-        student_history = [row for row in all_data if len(row) >= 5 and row[1] == student_name]
-        return list(reversed(student_history))
+        parsed = []
+        for row in all_data:
+            if len(row) >= 5 and row[1] == student_name:
+                t = row[0]
+                raw_q = row[2]
+                label = row[3]
+                ans = row[4]
+                status = row[5] if len(row) > 5 else "unknown"
+                
+                # 영문 코드를 한글 풀 버전으로 변환 ([SET1] q1 -> [실전 적용 1] 1. 재현 방식)
+                set_num = raw_q.split("]")[0].replace("[SET", "")
+                q_num = raw_q.split(" ")[1].replace("q", "")
+                
+                set_name = f"[실전 적용 {set_num}]"
+                q_names = {"1": "1. 재현 방식", "2": "2. 관점과 의도", "3": "3. 비판적 읽기"}
+                q_name = q_names.get(q_num, f"{q_num}번 문항")
+                
+                full_q_name = f"{set_name} {q_name}"
+                
+                parsed.append({
+                    "time": t,
+                    "set_id": int(set_num) if set_num.isdigit() else 99,
+                    "q_id": int(q_num) if q_num.isdigit() else 99,
+                    "full_q_name": full_q_name,
+                    "label": label,
+                    "ans": ans,
+                    "status": status
+                })
+                
+        # 1. 시간순으로 정렬하여 회차(1회, 2회) 계산
+        parsed.sort(key=lambda x: x["time"])
+        attempts = {}
+        for p in parsed:
+            key = (p["full_q_name"], p["label"])
+            attempts[key] = attempts.get(key, 0) + 1
+            p["attempt"] = attempts[key]
+            
+        # 2. 문항 번호 순서대로 재정렬 (세트 -> 문항 -> 라벨 -> 회차)
+        parsed.sort(key=lambda x: (x["set_id"], x["q_id"], x["label"], x["attempt"]))
+        return parsed
+        
     except Exception:
         return []
 
@@ -414,7 +464,6 @@ for i, tab in enumerate(tabs[:3]):
                 """, unsafe_allow_html=True)
             st.write("")
             
-            # (1) 하위 문항 입력란
             st.markdown("**(1) ㉠, ㉡에 들어가기에 적절한 표현을 쓰시오.**")
             inputs = {}
             for it in q["items"][:2]:
@@ -422,7 +471,6 @@ for i, tab in enumerate(tabs[:3]):
                 inputs[k_it] = st.text_input(f"**{it['label']}**", value=ss.answers.get(k_it, ""), key=f"w-{k_it}", placeholder="내용을 입력하세요")
             st.write("")
             
-            # (2) 하위 문항 입력란
             st.markdown("**(2) 위 광고에 담긴 제작자의 의도를 재현 방법을 근거로 들어 서술하시오.**")
             cond_box(
                 ["광고에 재현된 내용에서 찾은 근거를 포함하여 기술할 것.", "아래 문장 틀에 맞추어 쓸 것."],
@@ -471,30 +519,35 @@ with tabs[3]:
     if not ss.student:
         st.warning("⚠️ 왼쪽 사이드바에 학번과 이름을 입력하셔야 누적 학습 기록을 조회할 수 있습니다.")
     else:
-        if st.button("📥 내 이전 기록 불러오기", type="primary"):
-            with st.spinner("과거 기록을 불러오는 중입니다..."):
-                history_data = fetch_history_from_sheet(ss.student)
+        if st.button("📥 내 이전 기록 모두 불러오기", type="primary"):
+            with st.spinner("과거 기록을 정리해서 가져오는 중입니다..."):
+                history_data = fetch_and_process_history(ss.student)
                 
             if not history_data:
                 st.info("아직 저장된 학습 기록이 없습니다. 문제를 풀고 제출해 보세요!")
             else:
-                st.success(f"총 {len(history_data)}건의 과거 제출 기록을 성공적으로 불러왔습니다.")
+                st.success(f"성공적으로 불러왔습니다! 문항 번호 순으로 과거 제출 내역을 보여줍니다.")
                 st.divider()
                 
-                # 과거 기록 출력 (시간순)
-                for row in history_data:
-                    if len(row) >= 5:
-                        date_str = row[0]
-                        q_info = row[2]
-                        label_str = row[3]
-                        ans_str = row[4]
-                        fb_status = row[5] if len(row) > 5 else "unknown"
+                # 문항별로 묶어서 순서대로 출력 및 상태 라벨 표시
+                current_q = None
+                for item in history_data:
+                    if current_q != item['full_q_name']:
+                        st.markdown(f"#### 📚 {item['full_q_name']}")
+                        current_q = item['full_q_name']
                         
-                        st.markdown(f"**{date_str} 제출 | {q_info} - {label_str}**")
-                        if fb_status == "success":
-                            st.success(f"나의 답안: {ans_str} (✅ 통과)")
-                        elif fb_status == "error":
-                            st.error(f"나의 답안: {ans_str} (💡 보완 필요)")
+                    st.markdown(f"**[{item['label']}] - {item['attempt']}회 응시**")
+                    
+                    col_ans, col_stat = st.columns([4, 1])
+                    with col_ans:
+                        st.info(f"나의 답안: {item['ans']}")
+                    with col_stat:
+                        if item['status'] == "success":
+                            st.success("✅ 조건 충족")
+                        elif item['status'] == "error":
+                            st.error("💡 보완 필요")
                         else:
-                            st.info(f"나의 답안: {ans_str}")
-                        st.write("")
+                            st.warning("결과 없음")
+                            
+                    st.write("")
+                st.divider()
