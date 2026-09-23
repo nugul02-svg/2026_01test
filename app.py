@@ -8,7 +8,7 @@ from pathlib import Path
 
 import streamlit as st
 
-# 데이터 (줄바꿈 오류를 방지하기 위해 텍스트를 간결하고 안전하게 정리했습니다)
+# 데이터
 SETS = [
     {
         "id": "set1",
@@ -192,7 +192,6 @@ def call_grader(prompt):
     msg = client.messages.create(model=model, max_tokens=1200, messages=[{"role": "user", "content": prompt}])
     text = "".join(b.text for b in msg.content if getattr(b, "type", "") == "text")
     
-    # 잦은 복사 에러를 일으키는 마크다운 백틱 기호(```)를 문자열에서 안전하게 처리합니다.
     backticks = chr(96) * 3
     text = text.replace(f"{backticks}json", "").replace(backticks, "").strip()
     
@@ -321,3 +320,97 @@ def page_q3(s):
 
 # ---------------------------------------------------------------- 결과 페이지
 def collect():
+    out = []
+    for si, s in enumerate(SETS, 1):
+        for qi, qk in enumerate(["q1", "q2", "q3"], 1):
+            rows = []
+            for it in s[qk]["items"]:
+                k = akey(s["id"], it["id"]); a = ss.answers.get(k, "").strip(); v = ss.verdicts.get(k)
+                if not a: status = "미작성"
+                elif v is None: status = "미채점"
+                elif v["answer"] != a: status = "수정 후 미채점"
+                else: status = v["verdict"]
+                rows.append({"답란": it["label"], "내 답안": a or "—", "판정": status, "피드백": v["feedback"] if v and status in ("정", "오") else ""})
+            out.append({"key": f"{s['id']}-{qk}", "name": f"{si}번 세트 – 서·논술형 {qi}", "rows": rows})
+    return out
+
+def result_text(data):
+    lines = [f"학번·이름: {ss.student}", f"제출 시각: {dt.datetime.now():%Y-%m-%d %H:%M}", ""]
+    for d in data:
+        lines.append(f"[{d['name']}]")
+        for r in d["rows"]:
+            fb = f" / {r['피드백']}" if r["피드백"] else ""
+            lines.append(f"{r['답란']}: {r['내 답안']} → {r['판정']}{fb}")
+        lines.append("")
+    return "\n".join(lines)
+
+def submit_to_sheet(data):
+    import gspread
+    from google.oauth2.service_account import Credentials
+    info = dict(secret("gcp_service_account"))
+    creds = Credentials.from_service_account_info(info, scopes=["https://www.googleapis.com/auth/spreadsheets"])
+    sh = gspread.authorize(creds).open_by_url(secret("SHEET_URL"))
+    ws = sh.sheet1
+    header = ["제출시각", "학번·이름"] + [f"{d['name']}" for d in data] + ["정 개수", "작성 개수"]
+    if not ws.row_values(1): ws.append_row(header)
+    cells = []
+    ok = done = 0
+    for d in data:
+        cells.append("\n".join(f"{r['답란']}: {r['내 답안']} → {r['판정']}" for r in d["rows"]))
+        for r in d["rows"]:
+            if r["내 답안"] != "—": done += 1
+            if r["판정"] == "정": ok += 1
+    ws.append_row([f"{dt.datetime.now():%Y-%m-%d %H:%M:%S}", ss.student] + cells + [ok, done])
+
+def page_result():
+    c1, c2 = st.columns([3, 1])
+    c1.subheader("결과 정리")
+    if c2.button("다시 풀기", type="secondary", width="stretch"): ss["confirm_reset"] = True
+    if ss.get("confirm_reset"):
+        st.warning("모두 지우고 다시 풀까요?")
+        a, b = st.columns(2)
+        if a.button("네, 다시 풀게요", type="primary", width="stretch"):
+            for k in list(ss.keys()):
+                if k.startswith("w-"): del ss[k]
+            ss.answers = {}; ss.verdicts = {}; ss.graded = set(); ss.confirm_reset = False
+            ss.page = PAGE_IDS[0]; st.rerun()
+        if b.button("아니요", width="stretch"):
+            ss.confirm_reset = False; st.rerun()
+            
+    ss.student = st.text_input("학번·이름", value=ss.student, placeholder="예: 20415 홍길동")
+    data = collect()
+    st.markdown(f"**답란 {sum(len(d['rows']) for d in data)}개 중 작성 {sum(1 for d in data for r in d['rows'] if r['내 답안'] != '—')}개, 정 {sum(1 for d in data for r in d['rows'] if r['판정'] == '정')}개**")
+    for i, d in enumerate(data):
+        h1, h2 = st.columns([3, 1])
+        h1.markdown(f"**{d['name']}**")
+        if h2.button("이 문항으로", key=f"go-{d['key']}", width="stretch"):
+            ss.page = d["key"]; st.rerun()
+        st.table(d["rows"])
+    txt = result_text(data)
+    c1, c2 = st.columns(2)
+    sheet_ok = secret("gcp_service_account") is not None and secret("SHEET_URL") is not None
+    if c1.button("구글 시트로 제출", type="primary", width="stretch", disabled=not sheet_ok):
+        if not ss.student.strip(): st.warning("학번·이름을 먼저 써 주세요.")
+        else:
+            try:
+                submit_to_sheet(data); st.success("제출 완료!")
+            except Exception as e:
+                st.error(f"제출 실패: {e}")
+    if not sheet_ok: c1.caption("구글 시트 미설정 상태입니다.")
+    c2.download_button("결과 내려받기(.txt)", data=txt, file_name=f"결과_{ss.student or '학생'}.txt", mime="text/plain", width="stretch")
+
+# ---------------------------------------------------------------- 메인
+st.title("서논술형 답안 연습")
+st.caption("광고·홍보물의 재현과 관점 — 1회 시험 대비")
+
+choice = st.radio("문항", [p["tab"] for p in PAGES], horizontal=True, label_visibility="collapsed", index=PAGE_IDS.index(ss.page))
+sel = next(p for p in PAGES if p["tab"] == choice)
+if sel["id"] != ss.page: ss.page = sel["id"]
+idx = PAGE_IDS.index(ss.page)
+page = PAGES[idx]
+
+if page["id"] == "result": page_result()
+else:
+    {"q1": page_q1, "q2": page_q2, "q3": page_q3}[page["qkey"]](page["set"])
+st.divider()
+pager(idx)
