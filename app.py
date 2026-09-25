@@ -161,7 +161,7 @@ if "graded" not in ss: ss.graded = set()
 if "feedbacks" not in ss: ss.feedbacks = {}
 if "student" not in ss: ss.student = ""
 
-# ---------------------------------------------------------------- 사이드바 (학습 도우미만 남김)
+# ---------------------------------------------------------------- 사이드바 (학습 도우미)
 with st.sidebar:
     st.markdown("<div style='font-size:1.5em; font-weight:bold; margin-bottom:15px;'>📖 개념 길잡이</div>", unsafe_allow_html=True)
     
@@ -191,11 +191,27 @@ def get_local_feedback(answer, label, set_id):
         
     tip_header = "\n\n**💡 통과를 위한 수정 팁**\n문장의 끝부분만 조건에 맞게 살짝 다듬어 주시면 바로 정답(✅) 처리됩니다.\n"
     
-    # 1. 3번 비판적 읽기 - ㉠, ㉡ 단순 빈칸 추리 문항
+    # 1. (가) / (나) 문항 교차 입력 (혼동) 족집게 검증
+    if "(가)" in label:
+        if set_id == "set1" and any(w in ans for w in ["당신이", "당신을", "자기를봤", "인식차이"]):
+            return {"status": "error", "msg": "💡 앗! (나) 광고의 내용이 섞여 있는 것 같아요. 문항 조건이 (가)인지 (나)인지 다시 한 번 확인해 보세요!"}
+        if set_id == "set2" and any(w in ans for w in ["농부", "조리사", "손", "기억"]):
+            return {"status": "error", "msg": "💡 앗! (나) 광고의 내용이 섞여 있는 것 같아요. 문항 조건이 (가)인지 (나)인지 다시 한 번 확인해 보세요!"}
+        if set_id == "set3" and any(w in ans for w in ["슬리퍼", "푹신"]):
+            return {"status": "error", "msg": "💡 앗! (나) 광고의 내용이 섞여 있는 것 같아요. 문항 조건이 (가)인지 (나)인지 다시 한 번 확인해 보세요!"}
+    elif "(나)" in label:
+        if set_id == "set1" and any(w in ans for w in ["5초", "고개", "신호등"]):
+            return {"status": "error", "msg": "💡 앗! (가) 광고의 내용이 섞여 있는 것 같아요. 문항 조건이 (가)인지 (나)인지 다시 한 번 확인해 보세요!"}
+        if set_id == "set2" and any(w in ans for w in ["300kg", "300", "산처럼", "산쌓"]):
+            return {"status": "error", "msg": "💡 앗! (가) 광고의 내용이 섞여 있는 것 같아요. 문항 조건이 (가)인지 (나)인지 다시 한 번 확인해 보세요!"}
+        if set_id == "set3" and any(w in ans for w in ["천장", "그림자"]):
+            return {"status": "error", "msg": "💡 앗! (가) 광고의 내용이 섞여 있는 것 같아요. 문항 조건이 (가)인지 (나)인지 다시 한 번 확인해 보세요!"}
+
+    # 2. 3번 비판적 읽기 - 단순 빈칸 추리 문항
     if label == "㉠" or label == "㉡":
         if set_id == "set1":
             if label == "㉠":
-                words = ["관리", "쪼개", "통제", "효율", "계획", "바쁘", "빈틈", "아껴", "가치", "철저", "활용", "소중", "수단"]
+                words = ["관리", "쪼개", "통제", "효율", "계획", "바쁘", "빈틈", "아껴", "가치", "철저", "활용", "소중", "수단", "놓치", "안되", "잡아", "써야", "알차", "꽉", "중요"]
                 if any(w in ans for w in words): return {"status": "success", "msg": "주어진 자료를 바탕으로 관점을 아주 정확하게 추리했습니다!"}
                 else: return {"status": "error", "msg": "💡 단서 분석이 아쉽습니다. 광고 속 '뛰어가는 학생'과 '1분도 놓치지 않는'이라는 문구를 다시 확인해 보세요. 시간을 여유롭게 둔다는 의미일까요, 아니면 철저하게 관리해야 한다는 의미일까요?"}
             else:
@@ -223,22 +239,22 @@ def get_local_feedback(answer, label, set_id):
                 if any(w in ans for w in words): return {"status": "success", "msg": "주어진 자료를 바탕으로 관점을 아주 정확하게 추리했습니다!"}
                 else: return {"status": "error", "msg": "💡 단서 분석이 아쉽습니다. 두 학생이 '같은 노래'를 들으며 함께 웃는 모습을 바탕으로, 이어폰이 타인과의 관계에서 어떤 역할을 하는지 관점을 추리해 보세요."}
 
-    # 2. 1번 재현 방식 (알수, 담겨 등 일상적 서술어 대폭 확장)
+    # 3. 1번 재현 방식 (효과 서술어 대폭 확장)
     if "문구" in label or "이미지" in label:
         if any(w in ans for w in ["이미지", "그림", "사진", "모습"]) and "문구" in label:
             return {"status": "error", "msg": "💡 문구(글)에 대한 분석을 쓰는 칸인데, 이미지나 그림에 대한 설명이 섞여 있는 것 같아요. 다시 확인해 보세요!"}
         if any(w in ans for w in ["문구", "글씨", "글귀", "텍스트", "문장"]) and "이미지" in label:
             return {"status": "error", "msg": "💡 이미지(그림)에 대한 분석을 쓰는 칸인데, 문구(글)에 대한 설명이 섞여 있는 것 같아요. 다시 확인해 보세요!"}
             
-        effect_words = ["보여", "나타", "하게", "주어", "알게", "느끼", "전달", "효과", "위험", "경각심", "촉구", "깨닫", "생각", "유도", "이해", "알려", "강조", "알수", "알아", "드러", "담겨", "의미"]
+        effect_words = ["보여", "나타", "하게", "주어", "알게", "느끼", "전달", "효과", "위험", "경각심", "촉구", "깨닫", "생각", "유도", "이해", "알려", "강조", "알수", "알아", "드러", "담겨", "의미", "알림", "깨달", "전함", "실천", "공감", "한다", "해준다", "있게", "줌", "하자고", "줍니"]
         if not any(w in ans for w in effect_words):
             tip = tip_header + "> \"...(이)라는 문구/이미지를 넣어, **~라는 것을 보여 줌(알게 함/느끼게 함).**\""
             return {"status": "error", "msg": "조건 누락: 광고의 문구나 이미지만 옮겨 쓰지 말고, 그것이 주는 '효과(의미나 수용자에게 미치는 영향)'를 반드시 서술해 보세요." + tip}
         return {"status": "success", "msg": "문맥과 조건에 맞게 잘 작성했습니다! 훌륭합니다."}
         
-    # 3. 2번 관점 검증
+    # 4. 2번 관점 검증
     if "관점" in label:
-        reason_words = ["때문", "이유", "까닭", "왜냐하면", "보아", "보면", "라서", "므로", "통해", "여서", "어서"]
+        reason_words = ["때문", "이유", "까닭", "왜냐하면", "보아", "보면", "라서", "므로", "통해", "여서", "어서", "바탕으로"]
         view_words = ["본다", "보여", "생각", "여긴", "간주", "의미", "관점", "바라", "로본다", "으로본다", "여긴다"]
         
         has_reason = any(w in ans for w in reason_words)
@@ -255,23 +271,23 @@ def get_local_feedback(answer, label, set_id):
             if not any(w in ans for w in ["위험", "위협", "생명", "사고", "문제", "인식", "차이", "치명", "아찔", "다르", "나쁜", "부정", "조심"]):
                 return {"status": "error", "msg": "💡 내용 보완 필요: 문장 형식은 맞지만 내용이 타당하지 않습니다. 스마트폰 보행이 얼마나 '위험'한지, 혹은 운전자와의 '인식 차이'가 어떤지 광고 맥락에 맞게 적어주세요."}
         elif set_id == "set2":
-            if not any(w in ans for w in ["낭비", "자원", "쓰레기", "버리", "산", "노고", "정성", "수고", "땀", "노력", "사람", "가치", "농부", "조리사", "귀한", "소중", "손", "감사", "중요"]):
-                return {"status": "error", "msg": "💡 내용 보완 필요: 문장 형식은 맞지만 내용이 타당하지 않습니다. 음식물 쓰레기가 어떤 '낭비'인지, 혹은 누구의 '노고(손, 정성)'가 버려지는 것인지, 밥이 얼마나 '귀한' 것인지 적어주세요."}
+            if not any(w in ans for w in ["낭비", "자원", "쓰레기", "버리", "산", "노고", "정성", "수고", "땀", "노력", "사람", "가치", "농부", "조리사", "귀한", "소중", "손", "감사", "중요", "환경", "문제", "거대", "모이", "많", "큰", "작은", "티끌", "모여"]):
+                return {"status": "error", "msg": "💡 내용 보완 필요: 문장 형식은 맞지만 내용이 타당하지 않습니다. 음식물 쓰레기가 어떤 '낭비/환경문제'인지, 혹은 누구의 '노고(손, 정성)'가 담긴 '귀한' 것인지 적어주세요."}
         elif set_id == "set3":
             if not any(w in ans for w in ["폭력", "고통", "무거", "피해", "스트레스", "짓누르", "천장", "소음", "실천", "해결", "쉽게", "배려", "작은", "간단", "이웃", "심각", "나쁜"]):
                 return {"status": "error", "msg": "💡 내용 보완 필요: 문장 형식은 맞지만 내용이 타당하지 않습니다. 층간소음이 이웃에게 어떤 '고통'인지, 혹은 슬리퍼가 얼마나 '쉬운 해결책(실천)'인지 적어주세요."}
 
         return {"status": "success", "msg": "문장 틀과 내용의 타당성까지 완벽하게 작성했습니다! 훌륭합니다."}
 
-    # 4. 2번 의도 검증
+    # 5. 2번 의도 검증 (구어체 허용 확장)
     if label == "(가)의 의도" or label == "(나)의 의도":
-        intent_words = ["하려", "하기", "하게", "유도", "목적", "바란다", "원한", "만들려", "의도", "바람", "이끌", "행동"]
+        intent_words = ["하려", "하기", "하게", "유도", "목적", "바란다", "원한", "만들려", "의도", "바람", "이끌", "행동", "같다", "하라는", "요구", "라는", "말라는", "건너라", "하지말고", "마라", "할라고", "하려고", "할려고", "하자고"]
         if not any(w in ans for w in intent_words):
             return {"status": "error", "msg": "💡 조건 누락: 제작자가 수용자에게 어떤 행동이나 생각을 '하게 하려는지(~하게 하려 한다, ~가 목적이다 등)'가 명확히 드러나게 써보세요."}
 
         if set_id == "set1":
-            if not any(w in ans for w in ["보지않", "하지않", "주의", "조심", "경각심", "멈추", "스마트폰", "위험", "안전", "앞", "예방", "사고", "넣게", "길", "주위", "주변", "살피", "건너", "주시", "횡단보도"]):
-                return {"status": "error", "msg": "💡 내용 보완 필요: 문장 형식은 맞지만 핵심 내용이 아쉽습니다. 사람들이 스마트폰 보행 시 어떻게 하기를 바라는지 맥락에 맞게 적어주세요."}
+            if not any(w in ans for w in ["보지않", "하지않", "주의", "조심", "경각심", "멈추", "스마트폰", "핸드폰", "휴대폰", "폰", "위험", "안전", "앞", "예방", "사고", "넣게", "길", "주위", "주변", "살피", "건너", "주시", "횡단보도"]):
+                return {"status": "error", "msg": "💡 내용 보완 필요: 문장 형식은 맞지만 핵심 내용이 아쉽습니다. 사람들이 스마트폰(핸드폰) 보행 시 어떻게 하기를 바라는지 맥락에 맞게 적어주세요."}
         elif set_id == "set2":
             if not any(w in ans for w in ["남기지", "다먹", "줄이", "버리지", "감사", "노고", "음식", "잔반", "농부", "조리사", "소중", "귀하게", "고마움", "밥"]):
                 return {"status": "error", "msg": "💡 내용 보완 필요: 문장 형식은 맞지만 핵심 내용이 아쉽습니다. 음식을 어떻게 하기를 바라는지 맥락에 맞게 적어주세요."}
@@ -281,10 +297,10 @@ def get_local_feedback(answer, label, set_id):
 
         return {"status": "success", "msg": "제작자의 의도와 핵심 내용을 문맥에 맞게 훌륭하게 파악했습니다!"}
 
-    # 5. 3번 비판적 읽기 (원본 광고 의도)
+    # 6. 3번 비판적 읽기 (원본 광고 의도)
     if "원본 광고의 제작자 의도" in label:
         reason_words = ["때문", "이유", "까닭", "왜냐하면", "보아", "보면", "라서", "므로", "통해", "여서", "어서", "바탕으로"]
-        intent_words = ["하려", "하기", "하게", "유도", "목적", "바란다", "원한", "만들려", "의도", "바람", "이끌", "행동", "만든다", "사용", "사게", "사도록", "팔려", "구매", "팔기"]
+        intent_words = ["하려", "하기", "하게", "유도", "목적", "바란다", "원한", "만들려", "의도", "바람", "이끌", "행동", "만든다", "사용", "사게", "사도록", "팔려", "구매", "팔기", "같다", "하라는", "요구", "라는", "할라고", "하려고", "할려고"]
         
         has_reason = any(w in ans for w in reason_words)
         has_intent = any(w in ans for w in intent_words)
@@ -333,11 +349,11 @@ def get_base64_image(file_name, label):
 st.markdown("<div style='font-size: 2em; font-weight: bold; margin-bottom: 0.2em;'>🕵️‍♂️ [국어] 답안 작성 연습</div>", unsafe_allow_html=True)
 st.markdown("<div style='font-size: 1.2em; color: #555; margin-bottom: 1em;'>작성한 답안을 입력한 뒤 문제의 조건에 맞게 작성하였는지 확인하세요.</div>", unsafe_allow_html=True)
 
-# 학생 정보란을 메인 화면으로 이동
+# 학생 정보란 (공개 버전용 기본 플레이스홀더 적용)
 with st.container():
     st.markdown("<div style='font-size:1.2em; font-weight:bold; margin-bottom:5px;'>👤 학생 정보 입력</div>", unsafe_allow_html=True)
     st.caption("자신의 학번과 이름을 정확히 입력해야 채점 결과가 누적 기록됩니다.")
-    ss.student = st.text_input("학번과 이름", value=ss.student, placeholder="예: 20100 조중이", label_visibility="collapsed")
+    ss.student = st.text_input("학번과 이름", value=ss.student, placeholder="예: 10101 홍길동", label_visibility="collapsed")
 st.write("")
 
 completed = len(ss.graded)
