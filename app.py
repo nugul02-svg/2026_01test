@@ -354,7 +354,7 @@ st.markdown("<div style='font-size: 1.2em; color: #555; margin-bottom: 1em;'>작
 with st.container():
     st.markdown("<div style='font-size:1.2em; font-weight:bold; margin-bottom:5px;'>👤 학생 정보 입력</div>", unsafe_allow_html=True)
     st.caption("자신의 학번과 이름을 정확히 입력해야 채점 결과가 누적 기록됩니다.")
-    ss.student = st.text_input("학번과 이름", value=ss.student, placeholder="예: 10101 홍길동", label_visibility="collapsed")
+    ss.student = st.text_input("학번과 이름", value=ss.student, placeholder="예: 20100 조중이", label_visibility="collapsed")
 st.write("")
 
 completed = len(ss.graded)
